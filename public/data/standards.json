@@ -1,0 +1,988 @@
+{
+  "version": "2026-07",
+  "updated": "2026-07-15",
+  "note": "由 scripts/update-standards.js 自动生成。运行 node scripts/update-standards.js 即可更新。",
+  "categories": [
+    {
+      "id": "instruments",
+      "name": "仪器与刻度标准",
+      "icon": "fa-microscope",
+      "iconColor": "#8b5cf6",
+      "description": "测井仪器刻度规范、校准方法、量值传递规程",
+      "standards": [
+        {
+          "code": "SYT5704-2012",
+          "name": "地层倾角测井仪刻度规范",
+          "description": "规定测井仪器刻度、校准及量值传递的技术要求与操作方法，确保测量数据的准确性和可溯源性。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/01-SYT5704-2012 地层倾角测井仪刻度规范.pdf"
+        },
+        {
+          "code": "SYT5722-1995",
+          "name": "连续测斜仪通用技术条件",
+          "description": "涵盖该标准的通用技术条件与性能指标要求，适用于仪器设计、制造与检验全流程。",
+          "year": "1995",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/02-SYT5722-1995 连续测斜仪通用技术条件.pdf"
+        },
+        {
+          "code": "SYT6252-2012",
+          "name": "感应测井仪刻度及刻度装置技术规范",
+          "description": "规范该标准的校准方法与验收标准，为测井仪器量值统一提供技术依据。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/03-SYT6252-2012 感应测井仪刻度及刻度装置技术规范.pdf"
+        },
+        {
+          "code": "SYT6492-2020",
+          "name": "声速测井仪核实技术规范",
+          "description": "明确该标准的刻度周期、刻度标准器管理要求及操作步骤，保障仪器性能稳定。",
+          "year": "2020",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/04-SYT6492-2020 声速测井仪核实技术规范.pdf"
+        },
+        {
+          "code": "SYT6582-2019",
+          "name": "石油核测井仪刻度规范",
+          "description": "规定该标准的计量性能校准方法、周期及计量标准装置管理要求。",
+          "year": "2019",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/05-SYT6582-2019 石油核测井仪刻度规范.pdf"
+        },
+        {
+          "code": "SYT6588-2012",
+          "name": "电法测井仪校准方法",
+          "description": "规定测井仪器刻度、校准及量值传递的技术要求与操作方法，确保测量数据的准确性和可溯源性。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/06-SYT6588-2012 电法测井仪校准方法.pdf"
+        },
+        {
+          "code": "SYT6593-2016",
+          "name": "核磁共振成像测井仪刻度规范",
+          "description": "涵盖该标准的通用技术条件与性能指标要求，适用于仪器设计、制造与检验全流程。",
+          "year": "2016",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/07-SYT6593-2016 核磁共振成像测井仪刻度规范.pdf"
+        },
+        {
+          "code": "SYT6594.1-2004",
+          "name": "电、声成像测井作业质量监控规范 第1部分：测井仪刻度",
+          "description": "规范该标准的校准方法与验收标准，为测井仪器量值统一提供技术依据。",
+          "year": "2004",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/08-SYT6594.1-2004 电、声成像测井作业质量监控规范 第1部分：测井仪刻度.pdf"
+        },
+        {
+          "code": "SYT6704-2019",
+          "name": "井斜仪校准装置校准方法",
+          "description": "明确该标准的刻度周期、刻度标准器管理要求及操作步骤，保障仪器性能稳定。",
+          "year": "2019",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/09-SYT6704-2019 井斜仪校准装置校准方法.pdf"
+        },
+        {
+          "code": "SYT6720-2008",
+          "name": "自然伽马能谱测井刻度器校准方法",
+          "description": "规定该标准的计量性能校准方法、周期及计量标准装置管理要求。",
+          "year": "2008",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/10-SYT6720-2008 自然伽马能谱测井刻度器校准方法.pdf"
+        },
+        {
+          "code": "SYT6786-2010",
+          "name": "微球形聚焦测井仪刻度",
+          "description": "规定测井仪器刻度、校准及量值传递的技术要求与操作方法，确保测量数据的准确性和可溯源性。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/11-SYT6786-2010 微球形聚焦测井仪刻度.pdf"
+        },
+        {
+          "code": "SYT6813-2010",
+          "name": "井温仪校准方法",
+          "description": "涵盖该标准的通用技术条件与性能指标要求，适用于仪器设计、制造与检验全流程。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/12-SYT6813-2010 井温仪校准方法.pdf"
+        },
+        {
+          "code": "SYT6449-2000",
+          "name": "固井质量检测仪刻度及评价方法",
+          "description": "规范该标准的校准方法与验收标准，为测井仪器量值统一提供技术依据。",
+          "year": "2000",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/18-SYT6449-2000 固井质量检测仪刻度及评价方法.pdf"
+        },
+        {
+          "code": "SYT6493-2000",
+          "name": "核测井仪器量值传递规程",
+          "description": "明确该标准的刻度周期、刻度标准器管理要求及操作步骤，保障仪器性能稳定。",
+          "year": "2000",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/19-SYT6493-2000 核测井仪器量值传递规程.pdf"
+        },
+        {
+          "code": "SYT6741-2016",
+          "name": "石油专用计量器具校准方法编写规则",
+          "description": "规定该标准的计量性能校准方法、周期及计量标准装置管理要求。",
+          "year": "2016",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/57-SYT6741-2016 石油专用计量器具校准方法编写规则.pdf"
+        },
+        {
+          "code": "QSH1020/05512010",
+          "name": "声波变密度、自然伽马组合测井仪维修及操作与刻度规程",
+          "description": "规定测井仪器刻度、校准及量值传递的技术要求与操作方法，确保测量数据的准确性和可溯源性。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/60-QSH1020+0551_2010 声波变密度、自然伽马组合测井仪维修及操作与刻度规程.pdf"
+        },
+        {
+          "code": "—",
+          "name": "66-SYT6704-2019井斜仪校准装置校准方法",
+          "description": "涵盖该标准的通用技术条件与性能指标要求，适用于仪器设计、制造与检验全流程。",
+          "year": "—",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/66-SYT6704-2019井斜仪校准装置校准方法.pdf"
+        }
+      ]
+    },
+    {
+      "id": "operation",
+      "name": "作业技术规范",
+      "icon": "fa-hard-hat",
+      "iconColor": "#f59e0b",
+      "description": "电缆测井、存储式测井、随钻测井等现场作业技术规程",
+      "standards": [
+        {
+          "code": "SYT5600-2016",
+          "name": "石油电缆测井作业技术规范",
+          "description": "规范现场测井作业的技术要求与操作规程，涵盖施工准备、仪器安装与质量控制全流程。",
+          "year": "2016",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/21-SYT5600-2016 石油电缆测井作业技术规范.pdf"
+        },
+        {
+          "code": "SYT6030-2018",
+          "name": "钻杆及油管输送测井作业技术规范",
+          "description": "规定该标准的作业条件、施工步骤与资料验收标准，确保作业安全与数据质量。",
+          "year": "2018",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/22-SYT6030-2018 钻杆及油管输送测井作业技术规范.pdf"
+        },
+        {
+          "code": "SYT7308-2016",
+          "name": "泵出存储式测井作业技术规范",
+          "description": "明确现场作业的设备配置、操作程序与应急处置要求，指导规范施工。",
+          "year": "2016",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/23-SYT7308-2016 泵出存储式测井作业技术规范.pdf"
+        },
+        {
+          "code": "SYT6691-2014",
+          "name": "裸眼井测井设计规范",
+          "description": "涵盖该标准涉及的测井系列选择、参数设置与质量评价方法。",
+          "year": "2014",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/24-SYT6691-2014 裸眼井测井设计规范.pdf"
+        },
+        {
+          "code": "SYT6692-2019",
+          "name": "随钻测井作业技术规程",
+          "description": "规范现场测井作业的技术要求与操作规程，涵盖施工准备、仪器安装与质量控制全流程。",
+          "year": "2019",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/25-SYT6692-2019 随钻测井作业技术规程.pdf"
+        },
+        {
+          "code": "SYT5361-2014",
+          "name": "电缆测井仪器打捞技术规范",
+          "description": "规定该标准的作业条件、施工步骤与资料验收标准，确保作业安全与数据质量。",
+          "year": "2014",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/38-SYT5361-2014 电缆测井仪器打捞技术规范.pdf"
+        },
+        {
+          "code": "SYT6751-2016",
+          "name": "电缆测井与射孔带压作业技术规范",
+          "description": "明确现场作业的设备配置、操作程序与应急处置要求，指导规范施工。",
+          "year": "2016",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/39-SYT6751-2016 电缆测井与射孔带压作业技术规范.pdf"
+        },
+        {
+          "code": "SYT5326.2-2017",
+          "name": "井壁取心技术规范第2部分：钻进式",
+          "description": "涵盖该标准涉及的测井系列选择、参数设置与质量评价方法。",
+          "year": "2017",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/40-SYT5326.2-2017 井壁取心技术规范第2部分：钻进式.pdf"
+        },
+        {
+          "code": "QSH0187-2008",
+          "name": "水平套管井测井作业规程",
+          "description": "规范现场测井作业的技术要求与操作规程，涵盖施工准备、仪器安装与质量控制全流程。",
+          "year": "2008",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/42-QSH0187-2008 水平套管井测井作业规程.pdf"
+        },
+        {
+          "code": "QSH0593-2014",
+          "name": "泵出存储式测井作业技术规范",
+          "description": "规定该标准的作业条件、施工步骤与资料验收标准，确保作业安全与数据质量。",
+          "year": "2014",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/43-QSH0593-2014 泵出存储式测井作业技术规范.pdf"
+        },
+        {
+          "code": "QSH 0696-2016",
+          "name": "爬行器输送测井作业技术规范",
+          "description": "明确现场作业的设备配置、操作程序与应急处置要求，指导规范施工。",
+          "year": "2016",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/44-QSH 0696-2016 爬行器输送测井作业技术规范.pdf"
+        },
+        {
+          "code": "QSH1020/0901-2010",
+          "name": "水平套管井固放磁测井现场施工规程",
+          "description": "涵盖该标准涉及的测井系列选择、参数设置与质量评价方法。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/45-QSH1020+0901-2010 水平套管井固放磁测井现场施工规程.pdf"
+        },
+        {
+          "code": "QSH1020/2038-2010",
+          "name": "模块式电缆地层动态测试技术管理规范",
+          "description": "规范现场测井作业的技术要求与操作规程，涵盖施工准备、仪器安装与质量控制全流程。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/46-QSH1020+2038-2010 模块式电缆地层动态测试技术管理规范.pdf"
+        },
+        {
+          "code": "QSH1020/2335-2015",
+          "name": "LWF存储式测井作业技术规范",
+          "description": "规定该标准的作业条件、施工步骤与资料验收标准，确保作业安全与数据质量。",
+          "year": "2015",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/47-QSH1020+2335-2015 LWF存储式测井作业技术规范.pdf"
+        },
+        {
+          "code": "QSH1020/2622-2018",
+          "name": "测井工程质量",
+          "description": "明确现场作业的设备配置、操作程序与应急处置要求，指导规范施工。",
+          "year": "2018",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/53-QSH1020+2622-2018 测井工程质量.pdf"
+        },
+        {
+          "code": "QSH1020/3133-2024",
+          "name": "直推存储式测井作业技术规范",
+          "description": "涵盖该标准涉及的测井系列选择、参数设置与质量评价方法。",
+          "year": "2024",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/65-QSH1020+3133-2024 直推存储式测井作业技术规范.pdf"
+        },
+        {
+          "code": "SYT7411-2018",
+          "name": "海上石油电缆测井作业技术规范",
+          "description": "规范现场测井作业的技术要求与操作规程，涵盖施工准备、仪器安装与质量控制全流程。",
+          "year": "2018",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/67-SYT7411-2018 海上石油电缆测井作业技术规范.pdf"
+        },
+        {
+          "code": "QSH0289-2009",
+          "name": "裸眼井测井推荐系列",
+          "description": "规定该标准的作业条件、施工步骤与资料验收标准，确保作业安全与数据质量。",
+          "year": "2009",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/68-QSH0289-2009 裸眼井测井推荐系列.pdf"
+        },
+        {
+          "code": "QSH0537-2013",
+          "name": "带压全密闭测井作业规范",
+          "description": "明确现场作业的设备配置、操作程序与应急处置要求，指导规范施工。",
+          "year": "2013",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/69-QSH0537-2013 带压全密闭测井作业规范.pdf"
+        },
+        {
+          "code": "SYT 6548-2018",
+          "name": "石油测井电缆和连接器使用技术规范",
+          "description": "涵盖该标准涉及的测井系列选择、参数设置与质量评价方法。",
+          "year": "6548",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/SYT 6548-2018 石油测井电缆和连接器使用技术规范.docx"
+        },
+        {
+          "code": "SYT 6548-2018",
+          "name": "石油测井电缆和连接器使用技术规范",
+          "description": "规范现场测井作业的技术要求与操作规程，涵盖施工准备、仪器安装与质量控制全流程。",
+          "year": "6548",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/SYT 6548-2018 石油测井电缆和连接器使用技术规范.pdf"
+        }
+      ]
+    },
+    {
+      "id": "safety",
+      "name": "安全规范",
+      "icon": "fa-shield-alt",
+      "iconColor": "#ef4444",
+      "description": "放射源管理、井控安全、硫化氢防护、爆炸物品管理等安全生产操作规程",
+      "standards": [
+        {
+          "code": "SYT6432-2019",
+          "name": "浅海石油作业井控规范",
+          "description": "规范石油测井作业中安全管理要求与防护措施，保障人员与设备安全。",
+          "year": "2019",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/20-SYT6432-2019 浅海石油作业井控规范.pdf"
+        },
+        {
+          "code": "SYT6276-2014",
+          "name": "石油天然气工业健康、安全与环境管理体系",
+          "description": "规定安全操作程序与应急处置要求，预防事故发生。",
+          "year": "2014",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/26-SYT6276-2014 石油天然气工业健康、安全与环境管理体系.pdf"
+        },
+        {
+          "code": "SY5131-2008",
+          "name": "石油放射性测井辐射防护安全规程",
+          "description": "明确该标准涉及的风险识别、防护装备配备与应急演练要求。",
+          "year": "2008",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/27-SY5131-2008 石油放射性测井辐射防护安全规程.pdf"
+        },
+        {
+          "code": "SY5436-2016",
+          "name": "井筒作业用民用爆炸物品安全规范",
+          "description": "涵盖该标准的健康、安全与环境管理体系要求，推动规范化管理。",
+          "year": "2016",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/28-SY5436-2016 井筒作业用民用爆炸物品安全规范.pdf"
+        },
+        {
+          "code": "SYT5726-2018",
+          "name": "石油测井作业安全规范",
+          "description": "规范石油测井作业中安全管理要求与防护措施，保障人员与设备安全。",
+          "year": "2018",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/29-SYT5726-2018 石油测井作业安全规范.pdf"
+        },
+        {
+          "code": "SYT6044-2019",
+          "name": "浅（滩）海石油天然气作业安全应急要求",
+          "description": "规定安全操作程序与应急处置要求，预防事故发生。",
+          "year": "2019",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/30-SYT6044-2019 浅(滩)海石油天然气作业安全应急要求.pdf"
+        },
+        {
+          "code": "SYT6345-2022",
+          "name": "海洋石油作业人员安全资格",
+          "description": "明确该标准涉及的风险识别、防护装备配备与应急演练要求。",
+          "year": "2022",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/31-SYT6345-2022 海洋石油作业人员安全资格.pdf"
+        },
+        {
+          "code": "SYT6355-2017",
+          "name": "石油天然气生产专用安全标志",
+          "description": "涵盖该标准的健康、安全与环境管理体系要求，推动规范化管理。",
+          "year": "2017",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/32-SYT6355-2017 石油天然气生产专用安全标志.pdf"
+        },
+        {
+          "code": "SYT6501-2010",
+          "name": "浅海石油作业放射性及爆炸物品安全规程",
+          "description": "规范石油测井作业中安全管理要求与防护措施，保障人员与设备安全。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/33-SYT6501-2010 浅海石油作业放射性及爆炸物品安全规程.pdf"
+        },
+        {
+          "code": "SYT6502-2017",
+          "name": "海上石油设施逃生和救生安全规范",
+          "description": "规定安全操作程序与应急处置要求，预防事故发生。",
+          "year": "2017",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/34-SYT6502-2017 海上石油设施逃生和救生安全规范.pdf"
+        },
+        {
+          "code": "SYT6277-2017",
+          "name": "硫化氢环境人身防护规范",
+          "description": "明确该标准涉及的风险识别、防护装备配备与应急演练要求。",
+          "year": "2017",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/35-SYT6277-2017 硫化氢环境人身防护规范.pdf"
+        },
+        {
+          "code": "SYT6308-2012",
+          "name": "油田爆破器材安全使用推荐作法",
+          "description": "涵盖该标准的健康、安全与环境管理体系要求，推动规范化管理。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/36-SYT6308-2012 油田爆破器材安全使用推荐作法.pdf"
+        },
+        {
+          "code": "SYT6524-2017",
+          "name": "石油天然气作业场所劳动防护用具配备规范",
+          "description": "规范石油测井作业中安全管理要求与防护措施，保障人员与设备安全。",
+          "year": "2017",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/37-SYT6524-2017 石油天然气作业场所劳动防护用具配备规范.pdf"
+        },
+        {
+          "code": "AQ 2040-2012",
+          "name": "石油行业安全生产标准化 测录井实施规范",
+          "description": "规定安全操作程序与应急处置要求，预防事故发生。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/41-AQ 2040-2012 石油行业安全生产标准化 测录井实施规范.pdf"
+        },
+        {
+          "code": "QSH0190-2022",
+          "name": "含硫天然气井裸眼测井技术规范",
+          "description": "明确该标准涉及的风险识别、防护装备配备与应急演练要求。",
+          "year": "2022",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/54-QSH0190-2022 含硫天然气井裸眼测井技术规范.pdf"
+        },
+        {
+          "code": "QSH1020/0997-2024",
+          "name": "测井用密封型放射源安全管理规范",
+          "description": "涵盖该标准的健康、安全与环境管理体系要求，推动规范化管理。",
+          "year": "2024",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/55-QSH1020+0997-2024 测井用密封型放射源安全管理规范.pdf"
+        },
+        {
+          "code": "QSH1020/0999-2010",
+          "name": "裸眼井测井作业安全规程",
+          "description": "规范石油测井作业中安全管理要求与防护措施，保障人员与设备安全。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/56-QSH1020+0999-2010 裸眼井测井作业安全规程.pdf"
+        },
+        {
+          "code": "SYT6429-2017",
+          "name": "海洋石油生产设施消防规范",
+          "description": "规定安全操作程序与应急处置要求，预防事故发生。",
+          "year": "2017",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/58-SYT6429-2017 海洋石油生产设施消防规范.pdf"
+        },
+        {
+          "code": "SY6634-2012",
+          "name": "滩海陆岸石油作业安全规程",
+          "description": "明确该标准涉及的风险识别、防护装备配备与应急演练要求。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/59-SY6634-2012 滩海陆岸石油作业安全规程.pdf"
+        },
+        {
+          "code": "QSH1020/0996-2010",
+          "name": "海上射孔爆炸物品安全施工规定",
+          "description": "涵盖该标准的健康、安全与环境管理体系要求，推动规范化管理。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/61-QSH1020+0996-2010 海上射孔爆炸物品安全施工规定.pdf"
+        },
+        {
+          "code": "QSH1020/11542010",
+          "name": "油气井射孔、取心用爆炸物品安全规程",
+          "description": "规范石油测井作业中安全管理要求与防护措施，保障人员与设备安全。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "企业标准"
+          ],
+          "pdfUrl": "/standards/62-QSH1020+1154_2010 油气井射孔、取心用爆炸物品安全规程.pdf"
+        },
+        {
+          "code": "SYT6202-2013",
+          "name": "钻井井场油、水、电及供暖系统安装技术要求",
+          "description": "规定安全操作程序与应急处置要求，预防事故发生。",
+          "year": "2013",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/63-SYT6202-2013 钻井井场油、水、电及供暖系统安装技术要求.pdf"
+        },
+        {
+          "code": "GBT8196-2018",
+          "name": "机械安全防护装置固定式和活动式防护装置的设计与制造一般要求",
+          "description": "明确该标准涉及的风险识别、防护装备配备与应急演练要求。",
+          "year": "2018",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/64-GBT8196-2018 机械安全防护装置固定式和活动式防护装置的设计与制造一般要求.pdf"
+        }
+      ]
+    },
+    {
+      "id": "quality",
+      "name": "质量控制管理",
+      "icon": "fa-clipboard-check",
+      "iconColor": "#0891b2",
+      "description": "测井质量规范、监督工作规程、工程设计规范及标准体系管理",
+      "standards": [
+        {
+          "code": "QSH0360-2010",
+          "name": "裸眼井测井质量控制规范",
+          "description": "规定该标准的质量控制指标与验收标准，确保测井资料的真实性与可靠性。",
+          "year": "2010",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/48-QSH0360-2010 裸眼井测井质量控制规范.pdf"
+        },
+        {
+          "code": "QSH1020/0332-2003",
+          "name": "裸眼井测井原始资料检验工作流程",
+          "description": "规范该标准的检验工作流程与质量要求，提升测井作业管理水平。",
+          "year": "2003",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/49-QSH1020+0332-2003 裸眼井测井原始资料检验工作流程.pdf"
+        },
+        {
+          "code": "QSH1020/1488-2021",
+          "name": "核磁共振测井原始资料质量要求",
+          "description": "明确质量监督要点、资料验收标准与考核评价方法。",
+          "year": "2021",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/50-QSH1020+1488-2021 核磁共振测井原始资料质量要求.pdf"
+        },
+        {
+          "code": "QSH1020/1490-2005",
+          "name": "声电成象（STAR-Ⅱ）测井原始资料质量要求",
+          "description": "涵盖该标准的体系管理与持续改进要求。",
+          "year": "2005",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/51-QSH1020+1490-2005 声电成象(STAR-Ⅱ)测井原始资料质量要求.pdf"
+        },
+        {
+          "code": "QSH1020/2762-2020",
+          "name": "测井监督工作规程",
+          "description": "规定该标准的质量控制指标与验收标准，确保测井资料的真实性与可靠性。",
+          "year": "2020",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/52-QSH1020+2762-2020 测井监督工作规程.pdf"
+        },
+        {
+          "code": "—",
+          "name": "测井监督站标准体系表（2025.01.06）",
+          "description": "规范该标准的检验工作流程与质量要求，提升测井作业管理水平。",
+          "year": "—",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/测井监督站标准体系表（2025.01.06）.docx"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "name": "数据与资料规范",
+      "icon": "fa-database",
+      "iconColor": "#0284c7",
+      "description": "测井数据格式标准、原始资料质量验收、图件格式规范",
+      "standards": [
+        {
+          "code": "SYT5132-2012",
+          "name": "石油测井原始资料质量规范",
+          "description": "统一该标准的格式标准与命名规范，促进数据共享与资料管理规范化。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/13-SYT5132-2012 石油测井原始资料质量规范.pdf"
+        },
+        {
+          "code": "SYT5633-2018",
+          "name": "石油测井图件格式",
+          "description": "规范该标准的数据项名称、编码规则与交换格式。",
+          "year": "2018",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/14-SYT5633-2018 石油测井图件格式.pdf"
+        },
+        {
+          "code": "SYT5703-2012",
+          "name": "石油测井数据项名称规范",
+          "description": "明确资料格式、图件标准与归档要求，确保数据一致性。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/15-SYT5703-2012 石油测井数据项名称规范.pdf"
+        },
+        {
+          "code": "SYT5751-2012",
+          "name": "石油地质岩石名称及颜色代码",
+          "description": "统一该标准的格式标准与命名规范，促进数据共享与资料管理规范化。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/16-SYT5751-2012 石油地质岩石名称及颜色代码.pdf"
+        },
+        {
+          "code": "SYT5752-2012",
+          "name": "石油录井数据项名称规范",
+          "description": "规范该标准的数据项名称、编码规则与交换格式。",
+          "year": "2012",
+          "status": "current",
+          "replaces": "",
+          "tags": [
+            "现行",
+            "行业标准"
+          ],
+          "pdfUrl": "/standards/17-SYT5752-2012 石油录井数据项名称规范.pdf"
+        }
+      ]
+    }
+  ]
+}

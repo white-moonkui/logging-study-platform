@@ -1,0 +1,247 @@
+# 知识分类管理系统方案 v2.0（最终版）
+
+## 新增需求
+
+### 1. 分类扩展
+
+- ✅ 新增一级分类：**测井专业标准**
+- ✅ 新增一级分类：**跨专业知识**
+- ✅ 所有分类均支持多级嵌套
+- ✅ 管理员可自行管理所有分类
+
+### 2. 多媒体文件支持（核心需求）
+
+- ✅ **所有卡片必须支持视频播放**
+- ✅ **同一卡片下可以有多个文件**（视频、PDF、PPT、图片等）
+- ✅ **文件类型分组显示**（视频、文档、课件等）
+- ✅ **文件排序功能**（管理员可拖拽调整顺序）
+- ✅ **未来添加的卡片自动支持**（无需修改代码）
+
+---
+
+## 完整分类结构
+
+```
+知识分类树（支持任意层级）
+
+├── 测井基础理论
+│   ├── 放射性测井原理
+│   ├── 电法测井技术
+│   └── 声波测井技术
+│
+├── 测井仪器设备
+│   ├── 电法测井仪器
+│   │   ├── 电阻率测井
+│   │   └── 感应测井
+│   ├── 声波测井仪器
+│   ├── 放射性测井仪器
+│   ├── 随钻测井仪器 (LWD)
+│   ├── 过钻头仪器
+│   ├── 辅助工具设备
+│   └── 新技术
+│
+├── 测井专业标准 ⭐ 新增
+│   ├── 测井规范
+│   │   ├── 队伍建设规范
+│   │   └── 作业流程规范
+│   ├── 质量标准
+│   │   ├── 仪器检定标准
+│   │   └── 数据质量标准
+│   └── 安全标准
+│       └── 操作安全规范
+│
+├── 跨专业知识 ⭐ 新增
+│   ├── 岩石力学
+│   ├── 地球物理
+│   ├── 仪器电子
+│   └── 数据处理
+│
+├── 现场操作
+│   ├── 设备调试
+│   └── 数据采集
+│
+└── 典型案例
+    ├── 测井仪器故障
+    └── 现场操作失误
+```
+
+---
+
+## 文件管理系统架构
+
+### 1. 文件存储结构
+
+#### 目录结构
+
+```
+uploads/
+├── knowledge/                  # 知识点文件
+│   ├── 1/                      # 知识点ID
+│   │   ├── videos/             # 视频文件
+│   │   │   ├── 001_video.mp4
+│   │   │   ├── 002_demo.mp4
+│   │   │   └── 003_tutorial.mp4
+│   │   ├── documents/          # 文档文件
+│   │   │   ├── 001_manual.pdf
+│   │   │   └── 002_guide.pdf
+│   │   ├── presentations/      # 课件文件
+│   │   │   ├── 001_lecture.pptx
+│   │   │   └── 002_demo.pptx
+│   │   └── images/             # 图片文件
+│   │       ├── 001_diagram.jpg
+│   │       └── 002_chart.png
+│   │
+│   ├── 2/
+│   │   ├── videos/
+│   │   ├── documents/
+│   │   └── presentations/
+│   └── ... (更多知识点)
+│
+└── thumbnails/                  # 缩略图缓存
+    └── knowledge/
+        ├── 1/
+        ├── 2/
+        └── ...
+```
+
+---
+
+## 数据库设计
+
+### categories 表
+
+```sql
+CREATE TABLE categories (
+  id           VARCHAR(36) PRIMARY KEY,
+  name         VARCHAR(100) NOT NULL COMMENT '分类名称',
+  code         VARCHAR(50) UNIQUE NOT NULL COMMENT '分类代码',
+  parent_id    VARCHAR(36) NULL COMMENT '父分类ID',
+  level        INT NOT NULL DEFAULT 1 COMMENT '层级: 1=根分类',
+  sort_order   INT NOT NULL DEFAULT 0 COMMENT '排序',
+  icon         VARCHAR(50) NULL COMMENT '图标',
+  created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_parent (parent_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+### knowledge_items 表
+
+```sql
+CREATE TABLE knowledge_items (
+  id              VARCHAR(36) PRIMARY KEY,
+  title           VARCHAR(200) NOT NULL,
+  category_id     VARCHAR(36) NOT NULL,
+  description     TEXT NULL,
+  keywords        JSON NULL,
+  level           INT NOT NULL DEFAULT 1,
+  sort_order      INT NOT NULL DEFAULT 0,
+  status          VARCHAR(20) NOT NULL DEFAULT 'draft',
+  video_cover     VARCHAR(255) NULL,
+  video_duration  INT NULL,
+  file_count      INT NOT NULL DEFAULT 0,
+  video_count     INT NOT NULL DEFAULT 0,
+  document_count  INT NOT NULL DEFAULT 0,
+  presentation_count INT NOT NULL DEFAULT 0,
+  created_by      VARCHAR(36) NULL,
+  created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_category (category_id),
+  INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+### knowledge_files 表
+
+```sql
+CREATE TABLE knowledge_files (
+  id              VARCHAR(36) PRIMARY KEY,
+  knowledge_id    VARCHAR(36) NOT NULL,
+  file_type       ENUM('video', 'document', 'presentation', 'image', 'other') NOT NULL,
+  filename        VARCHAR(255) NOT NULL,
+  original_name   VARCHAR(255) NOT NULL,
+  file_path       VARCHAR(500) NOT NULL,
+  file_size       BIGINT NOT NULL,
+  mime_type       VARCHAR(100) NOT NULL,
+  duration        INT NULL,
+  thumbnail       VARCHAR(255) NULL,
+  sort_order      INT NOT NULL DEFAULT 0,
+  uploaded_by     VARCHAR(36) NULL,
+  uploaded_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (knowledge_id) REFERENCES knowledge_items(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+---
+
+## API 设计
+
+### 分类管理
+
+```
+GET    /api/categories/tree           # 获取分类树
+POST   /api/categories                # 创建分类（管理员）
+PUT    /api/categories/:id            # 更新分类（管理员）
+DELETE /api/categories/:id            # 删除分类（管理员）
+
+POST   /api/knowledge/:id/upload      # 上传文件
+PUT    /api/knowledge/:id/sort-files  # 更新文件排序
+```
+
+### 知识点管理
+
+```
+GET    /api/knowledge                 # 获取知识点列表
+GET    /api/knowledge/:id             # 获取知识点详情（含文件）
+POST   /api/knowledge                 # 创建知识点（管理员）
+PUT    /api/knowledge/:id             # 更新知识点（管理员）
+DELETE /api/knowledge/:id             # 删除知识点（管理员）
+```
+
+---
+
+## 实施步骤
+
+### Phase 1: 数据库迁移（1-2小时）
+
+1. 创建 categories 表
+2. 创建 knowledge_items 表
+3. 创建 knowledge_files 表
+4. 插入初始分类数据
+5. 创建文件目录结构
+
+### Phase 2: 后端核心功能（2-3小时）
+
+1. 创建模型和控制器
+2. 实现文件上传
+3. 实现视频处理
+4. 实现文件排序
+
+### Phase 3: 知识点管理页面（2-3小时）
+
+1. 创建编辑页面
+2. 文件上传组件
+3. 文件排序界面
+
+### Phase 4: 前端学习页面（2-3小时）
+
+1. 修改学习页面
+2. 视频播放器
+3. 文件资源展示
+
+### Phase 5: 测试优化（1-2小时）
+
+1. 测试所有功能
+2. 性能优化
+
+**总预估时间：8-13小时**
+
+---
+
+## 权限控制
+
+- **Admin**：完全控制所有分类和知识点
+- **Instructor**：可以创建/编辑/删除自己的内容
+- **Student**：只读访问
+
+**现在立即开始 Phase 1！**

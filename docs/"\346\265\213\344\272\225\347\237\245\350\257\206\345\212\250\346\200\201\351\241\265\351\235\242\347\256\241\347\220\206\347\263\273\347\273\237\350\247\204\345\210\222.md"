@@ -1,0 +1,309 @@
+# 测井知识学习培训模块 - 动态页面管理系统规划
+
+## 一、页面层级结构
+
+### 1.1 四级页面架构
+
+```
+测井知识学习培训 (一级)
+└── 测井仪器设备 (二级)
+    └── 过钻头仪器 (三级)
+        ├── 过钻头测井系统 (四级-内容页面)
+        │   ├── 视频
+        │   ├── PDF
+        │   └── PPT
+        ├── 过钻头声波测井 (四级)
+        ├── 过钻头电阻率测井 (四级)
+        └── [新增] ... (直接在后台添加)
+```
+
+### 1.2 层级说明
+
+| 层级 | 名称             | 类型     |
+| ---- | ---------------- | -------- |
+| 一级 | 测井知识学习培训 | 分类目录 |
+| 二级 | 测井仪器设备     | 分类目录 |
+| 三级 | 过钻头仪器       | 分类目录 |
+| 四级 | 过钻头测井系统等 | 内容页面 |
+
+---
+
+## 二、现有模块分析
+
+| 模块     | 当前状态   | 动态管理需求      |
+| -------- | ---------- | ----------------- |
+| 知识库   | 有基本CRUD | ✅ 需四级页面管理 |
+| 案例学习 | 有基本功能 | ✅ 需动态页面管理 |
+| 考试系统 | 有基本功能 | ✅ 需动态管理     |
+| 用户管理 | 已完善     | ❌ 不需要         |
+| AI功能   | 已完善     | ❌ 不需要         |
+
+---
+
+## 三、所有模块动态管理规划
+
+### 3.1 知识库模块 (Knowledge)
+
+```
+知识库 (一级)
+│
+├── 测井仪器设备 (二级)
+│   └── 过钻头仪器 (三级)
+│       ├── 过钻头测井系统 (四级)
+│       ├── 过钻头声波测井 (四级)
+│       └── ...
+│
+├── 基础知识 (二级)
+│   └── ...
+│
+└── 标准规范 (二级)
+    └── ...
+```
+
+**内容类型**: 视频、PDF、PPT、文档、图文
+
+---
+
+### 3.2 案例学习模块 (Case Study)
+
+```
+案例学习 (一级)
+│
+├── 仪器故障案例 (二级)
+│   └── 遇卡案例 (三级)
+│       ├── 钻头遇卡处理案例 (四级)
+│       ├── 电缆故障处理案例 (四级)
+│       └── ...
+│
+├── 测井解释案例 (二级)
+│   └── ...
+│
+└── 安全管理案例 (二级)
+    └── ...
+```
+
+**内容类型**: 案例文档、PDF报告、PPT讲解、视频教程、测验
+
+---
+
+### 3.3 考试系统模块 (Exam)
+
+```
+考试中心 (一级)
+│
+├── 基础理论考试 (二级)
+│   ├── 测井原理考试 (三级)
+│   ├── 仪器设备考试 (三级)
+│   └── ...
+│
+├── 操作技能考试 (二级)
+│   └── ...
+│
+└── 安全规范考试 (二级)
+    └── ...
+```
+
+**考试配置**:
+
+- 题目数量
+- 及格分数
+- 时间限制
+- 题型(单选/多选/判断/问答)
+
+---
+
+### 3.4 统一数据结构
+
+由于三个模块结构类似，统一使用以下数据模型：
+
+#### 分类表 (ModuleCategory)
+
+```javascript
+{
+  category_id: String,
+  module: String,           // knowledge/case/exam
+  category_name: String,
+  parent_id: String,
+  level: Number,           // 1/2/3/4
+  order: Number,
+  icon: String,
+  description: String,
+
+  // 扩展配置
+  config: Object,          // 模块特定配置
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+#### 页面/内容表 (ModulePage)
+
+```javascript
+{
+  page_id: String,
+  module: String,          // knowledge/case/exam
+  category_id: String,    // 所属分类
+
+  // 页面信息
+  page_name: String,
+  page_type: String,     // content/exam/quiz
+
+  // 内容/题目
+  contents: [{
+    content_id: String,
+    content_type: String, // video/pdf/ppt/text/question
+    title: String,
+    file_url: String,
+    // 考试专用
+    question_type: String, // single/multi/judge/essay
+    options: [String],
+    answer: String,
+    score: Number
+  }],
+
+  // 配置
+  config: {
+    time_limit: Number,     // 考试时间(分钟)
+    passing_score: Number,   // 及格分数
+    random_order: Boolean,   // 随机出题
+    show_result: Boolean    // 立即显示成绩
+  },
+
+  // 统计
+  view_count: Number,
+  completion_count: Number,
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+---
+
+## 四、统一API设计
+
+### 4.1 分类管理API
+
+| 方法   | 端点                                 | 说明         |
+| ------ | ------------------------------------ | ------------ |
+| GET    | /api/learning/:module/categories     | 获取分类列表 |
+| POST   | /api/learning/:module/categories     | 创建分类     |
+| PUT    | /api/learning/:module/categories/:id | 更新分类     |
+| DELETE | /api/learning/:module/categories/:id | 删除分类     |
+
+### 4.2 页面管理API
+
+| 方法   | 端点                            | 说明         |
+| ------ | ------------------------------- | ------------ |
+| GET    | /api/learning/:module/pages     | 获取页面列表 |
+| GET    | /api/learning/:module/pages/:id | 获取页面详情 |
+| POST   | /api/learning/:module/pages     | 创建页面     |
+| PUT    | /api/learning/:module/pages/:id | 更新页面     |
+| DELETE | /api/learning/:module/pages/:id | 删除页面     |
+
+### 4.3 内容管理API
+
+| 方法   | 端点                                   | 说明         |
+| ------ | -------------------------------------- | ------------ |
+| GET    | /api/learning/:module/contents/:pageId | 获取内容列表 |
+| POST   | /api/learning/:module/contents         | 添加内容     |
+| PUT    | /api/learning/:module/contents/:id     | 更新内容     |
+| DELETE | /api/learning/:module/contents/:id     | 删除内容     |
+
+### 4.4 学习/考试进度API
+
+| 方法 | 端点                                        | 说明         |
+| ---- | ------------------------------------------- | ------------ |
+| GET  | /api/learning/:module/progress/:pageId      | 获取进度     |
+| POST | /api/learning/:module/progress              | 更新进度     |
+| GET  | /api/learning/:module/progress/user/:userId | 用户进度列表 |
+
+---
+
+## 五、各模块详细规划
+
+### 5.1 知识库模块
+
+**功能**: 课程学习资料管理
+
+| 层级 | 示例             |
+| ---- | ---------------- |
+| 一级 | 测井知识学习培训 |
+| 二级 | 测井仪器设备     |
+| 三级 | 过钻头仪器       |
+| 四级 | 过钻头测井系统   |
+
+**内容类型**: 视频、PDF、PPT、文档
+
+**特有功能**:
+
+- 知识点标注
+- 笔记功能
+- 收藏功能
+- AI推荐相关知识
+
+---
+
+### 5.2 案例学习模块
+
+**功能**: 专业案例学习
+
+| 层级 | 示例             |
+| ---- | ---------------- |
+| 一级 | 案例学习         |
+| 二级 | 仪器故障案例     |
+| 三级 | 遇卡案例         |
+| 四级 | 钻头遇卡处理案例 |
+
+**内容类型**: 案例文档、PDF报告、视频教程、互动问答
+
+**特有功能**:
+
+- 案例步骤引导
+- 经验总结
+- 相关知识关联
+- AI案例分析
+
+---
+
+### 5.3 考试系统模块
+
+**功能**: 在线考试
+
+| 层级 | 示例             |
+| ---- | ---------------- |
+| 一级 | 考试中心         |
+| 二级 | 基础理论考试     |
+| 三级 | 测井原理考试     |
+| 四级 | 声波测井单元测验 |
+
+**内容类型**: 选择题、判断题、简答题
+
+**特有功能**:
+
+- 随机抽题
+- 自动评分
+- 成绩统计
+- 错题本
+- 考试时间控制
+
+---
+
+## 六、开发优先级
+
+| 优先级 | 模块     | 说明         |
+| ------ | -------- | ------------ |
+| P0     | 知识库   | 核心学习模块 |
+| P1     | 案例学习 | 专业案例     |
+| P2     | 考试系统 | 考核评估     |
+
+---
+
+## 七、版本管理
+
+按规范每次改动创建新版本文件：
+
+- learning_pages_v2.html
+- learning_admin_v2.html
+- 等等

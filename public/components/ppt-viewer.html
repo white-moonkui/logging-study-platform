@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PPT预览组件</title>
+        <!-- Font Awesome -->
+        <link
+            rel="stylesheet"
+            href="/vendor/font-awesome/css/all.min.css"
+        />
+        <!-- PPT Viewer Styles -->
+        <link rel="stylesheet" href="../css/ppt-viewer.css" />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+                    sans-serif;
+                background: #0f0f23;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .demo-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .demo-header h1 {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+
+            .demo-header p {
+                opacity: 0.9;
+                font-size: 14px;
+            }
+
+            .demo-container {
+                flex: 1;
+                padding: 20px;
+                max-width: 1200px;
+                margin: 0 auto;
+                width: 100%;
+            }
+
+            .ppt-preview-wrapper {
+                height: 600px;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
+
+            .demo-controls {
+                margin-top: 20px;
+                padding: 20px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+            }
+
+            .demo-controls h3 {
+                color: white;
+                margin-bottom: 12px;
+                font-size: 16px;
+            }
+
+            .demo-controls p {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            .demo-controls code {
+                background: rgba(255, 255, 255, 0.1);
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-family: 'Courier New', monospace;
+            }
+
+            .keyboard-shortcuts {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 12px;
+                margin-top: 16px;
+            }
+
+            .shortcut-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 13px;
+            }
+
+            .shortcut-key {
+                background: rgba(255, 255, 255, 0.15);
+                padding: 4px 10px;
+                border-radius: 6px;
+                font-family: monospace;
+                min-width: 60px;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="demo-header">
+            <h1><i class="fas fa-file-powerpoint"></i> PPT预览组件</h1>
+            <p>支持Microsoft Office Online预览，包含页面导航、笔记功能和键盘快捷键</p>
+        </div>
+
+        <div class="demo-container">
+            <div id="ppt-viewer" class="ppt-preview-wrapper"></div>
+
+            <div class="demo-controls">
+                <h3><i class="fas fa-info-circle"></i> 使用说明</h3>
+                <p>
+                    此组件用于在线预览PPT文件，使用Microsoft Office
+                    Online服务。需要确保PPT文件可以通过外网访问。
+                </p>
+                <p style="margin-top: 8px">
+                    使用方法：<code>new PPTViewer(containerId, options)</code>
+                </p>
+
+                <h3 style="margin-top: 20px"><i class="fas fa-keyboard"></i> 键盘快捷键</h3>
+                <div class="keyboard-shortcuts">
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">← / PageUp</span>
+                        <span>上一页</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">→ / PageDown</span>
+                        <span>下一页</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">Space</span>
+                        <span>下一页</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">Home</span>
+                        <span>第一页</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">End</span>
+                        <span>最后一页</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PPT Viewer Script -->
+        <script src="../js/pptViewer.js"></script>
+        <script>
+            // 初始化PPT预览组件
+            document.addEventListener('DOMContentLoaded', function () {
+                // 示例配置
+                const pptConfig = {
+                    fileId: 'demo-ppt-001',
+                    // 注意：这里需要一个实际的PPT文件URL
+                    // 在实际使用中，这应该指向您的服务器上的PPT文件
+                    src: 'https://example.com/sample.pptx',
+                    title: '过钻头测井系统培训课件',
+                    knowledgeId: 'knowledge-001',
+                    totalSlides: 25,
+                };
+
+                // 创建PPT预览实例
+                const viewer = new PPTViewer('ppt-viewer', pptConfig);
+
+                // 保存实例到全局，方便调试
+                window.pptViewer = viewer;
+
+                console.log('PPT预览组件已初始化');
+                console.log('快捷键：← → 翻页, Home/End 首尾页');
+            });
+        </script>
+    </body>
+</html>

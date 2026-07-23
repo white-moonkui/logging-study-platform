@@ -1,0 +1,503 @@
+# 石化通学习推送 — 详细方案
+
+> 将"每日复习"推到一线工程师每天打开的即时通讯工具里。
+> 基于现有 mcp-sinopec 能力 + Express 后端 + SRS 复习排期。
+
+---
+
+## 一、系统架构
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Express 后端                                            │
+│  ┌─────────────────────┐  ┌──────────────────────────┐  │
+│  │  复习排期引擎         │  │  石化通推送服务            │  │
+│  │  (SRS + SM-2)       │  │  (studyReminderService)  │  │
+│  │                     │  │                          │  │
+│  │  查 dueReviews      │──│→ 获取今日待复习知识点      │  │
+│  │  更新复习结果        │  │  格式化消息               │  │
+│  │  计算下次排期        │  │  发送/接收回复            │  │
+│  └─────────────────────┘  └────────────┬─────────────┘  │
+└──────────────────────────────────────────┼──────────────┘
+                                           │ MCP JSON-RPC
+                                           ▼
+┌─────────────────────────────────────────────────────────┐
+│  mcp-sinopec (Node.js)                                   │
+│  ┌──────────────┐  ┌─────────────┐  ┌────────────────┐  │
+│  │ sinopec_send │  │ sinopec_read│  │ sinopec_status │  │
+│  │ (SendKeys)   │  │ (OCR)       │  │ (Win32 API)    │  │
+│  └──────┬───────┘  └──────┬──────┘  └───────┬────────┘  │
+└─────────┼──────────────────┼──────────────────┼──────────┘
+          │                  │                  │
+          ▼                  ▼                  ▼
+      石化通客户端         OCR识别          窗口检测
+       (输出)            (输入)           (健康检查)
+```
+
+---
+
+## 二、消息格式设计
+
+### 每日复习消息（标准版）
+
+```
+【测井培训 · 今日复习】📚
+
+知识点: 声波时差测井原理
+──────────────────
+Q: 声波时差测井主要用于测量什么？
+   A. 岩石密度
+   B. 声波传播时间
+   C. 电阻率
+   D. 自然伽马
+
+──────────────────
+回复 B 查看答案与解析
+回复 N 跳过此题
+```
+
+### 答题反馈（用户回复后）
+
+```
+✅ 回答正确！
+
+声波时差测井通过测量声波在岩层中的传播时间，
+计算地层孔隙度和判断岩性。
+
+掌握程度: ████████░░ 82% (+5%)
+下次复习: 3天后
+──────────────────
+今日剩余复习: 3 题
+回复 N 查看下一题
+```
+
+### 错误答案反馈
+
+```
+❌ 回答错误
+
+正确答案: B. 声波传播时间
+声波时差测井(DT/DELT)测量的是声波在单位距离
+岩层中的传播时间(μs/m或μs/ft)，用于计算孔隙度。
+
+掌握程度: ██████░░░░ 55% (-8%)
+下次复习: 明天（需加强）
+──────────────────
+今日剩余复习: 3 题
+回复 N 查看下一题
+```
+
+### 复习完成通知
+
+```
+🎉 今日复习完成！
+
+今日复习: 5/5 题
+正确率: 80%
+连续学习: 7 天
+──────────────────
+明日预计复习: 3 题
+回复 S 查看学习统计
+```
+
+### 待办提醒（到一定时间未复习）
+
+```
+⏰ 学习提醒
+
+您今日还有 3 个知识点待复习
+上次学习: 2 天前
+──────────────────
+回复 任意内容 开始今日复习
+回复 Y 跳过今日(不再提醒)
+```
+
+---
+
+## 三、后端模块设计
+
+### 3.1 复习排期引擎（复用/扩展现有）
+
+**文件**: `utils/srsAlgorithm.js` — SM-2 算法（约 40 行）
+
+```javascript
+function calculateNextReview(quality, previous) {
+    // quality: 0(完全忘记) ~ 5(完美回答)
+    const minEF = 1.3;
+    let ef = previous.easeFactor || 2.5;
+    ef = ef + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+    ef = Math.max(minEF, ef);
+
+    let interval;
+    if (quality < 3) interval = 1;
+    else if (previous.reviewCount === 0) interval = 1;
+    else if (previous.reviewCount === 1) interval = 3;
+    else interval = Math.round(previous.interval * ef);
+
+    return {
+        interval: Math.min(interval, 365),
+        easeFactor: Math.round(ef * 100) / 100,
+        nextReviewAt: new Date(Date.now() + interval * 86400000),
+    };
+}
+```
+
+### 3.2 石化通推送服务
+
+**文件**: `services/studyReminderService.js`
+
+```javascript
+class StudyReminderService {
+    constructor() {
+        this.srsAlgorithm = require('../utils/srsAlgorithm');
+        this.LearningProgress = require('../models/LearningProgress');
+        this.Knowledge = require('../models/Knowledge');
+        this.User = require('../models/User');
+    }
+
+    // 【核心方法】获取今日待复习知识点（用于推送）
+    async getDueReviews(userId, limit = 5) {
+        return await LearningProgress.find({
+            userId,
+            nextReviewAt: { $lte: new Date() },
+            overallStatus: 'completed', // 已完成的知识点才需要复习
+        })
+        .sort({ nextReviewAt: 1 })
+        .limit(limit)
+        .populate('knowledgeId', 'title category level');
+    }
+
+    // 【核心方法】处理用户回复
+    async processReply(userId, replyText) {
+        // 解析回复: "A" / "B" / "N" / "跳过"
+        // 匹配今日待复习的 top 1
+        // 调用 srsAlgorithm 更新排期
+        // 返回反馈消息
+    }
+
+    // 【核心方法】格式化推送消息
+    formatReviewMessage(knowledge) {
+        // 组装成上述标准消息格式
+    }
+
+    // 【辅助】获取今日统计
+    async getTodayStats(userId) {
+        // 今日已复习数、正确率、连续天数
+    }
+
+    // 【辅助】获取每日待复习列表
+    async getDailyDigest(userId) {
+        // 今日待复习总数、预计耗时
+    }
+}
+```
+
+### 3.3 新增 API
+
+| 方法 | 路径 | 说明 | 用途 |
+|------|------|------|------|
+| `GET` | `/api/study-reminder/due` | 获取当前用户到期待复习列表 | 前端展示/推送准备 |
+| `POST` | `/api/study-reminder/submit` | 提交复习答案 | 处理石化通回复 |
+| `GET` | `/api/study-reminder/stats` | 获取复习统计 | 推送反馈/前端展示 |
+| `POST` | `/api/study-reminder/push-today` | 手动触发今日推送 | 管理端/调试 |
+
+### 3.4 调度触发方式（二选一）
+
+#### 方案A：定时任务（推荐，生产级）
+
+基于 `node-cron` 在 Express 进程内运行：
+
+```javascript
+// start.js 的 ApplicationStarter 中启动
+const cron = require('node-cron');
+
+// 每天 9:00 推送
+cron.schedule('0 9 * * *', async () => {
+    // 查所有有 dueReviews 的用户
+    // 逐个通过 mcp-sinopec 发送
+});
+
+// 每天 15:00 提醒未复习用户
+cron.schedule('0 15 * * *', async () => {
+    // 查今天还没复习完的用户
+    // 发提醒消息
+});
+```
+
+| 优点 | 缺点 |
+|------|------|
+| 全自动，无需干预 | Express 进程重启后需重新初始化 |
+| 控制精确（秒级） | 需保证单实例运行（避免重复推送） |
+| 推送时间可配（.env） | 调试需等整点 |
+
+#### 方案B：登录触发（简单，推荐初期使用）
+
+```javascript
+// 用户登录成功后自动触发
+app.post('/api/auth/login', async (req, res) => {
+    const user = await authenticateUser(req.body);
+    if (user && user.role === 'student') {
+        // 异步推送（不阻塞登录）
+        setImmediate(() => {
+            studyReminderService.sendDueReminder(user._id);
+        });
+    }
+    res.json({ token, user });
+});
+```
+
+| 优点 | 缺点 |
+|------|------|
+| 零额外依赖 | 不登录就不推送 |
+| 自然分散后端压力 | 活跃用户可能一天被触达多次 |
+| 实现简单 | 无法覆盖不活跃学员 |
+
+#### 方案C：sisyphus-cron（外部调度）
+
+如果项目跑在 Sisyphus 管理的环境中，可用 sisyphus-cron 的 `/cron add` 命令：
+
+```bash
+/cron add "每天9:00" "curl http://localhost:3000/api/study-reminder/push-today" --name 每日复习推送
+/cron add "每天15:00" "curl http://localhost:3000/api/study-reminder/remind-unfinished" --name 午间复习提醒
+```
+
+| 优点 | 缺点 |
+|------|------|
+| 与 Express 进程解耦 | 需要 sisyphus-cron 后台进程运行 |
+| 可独立管理调度 | 跨进程调用需 auth token |
+| 失败重试/日志 | 额外网络跳转 |
+
+**推荐**: 初期用 **方案B（登录触发）** + 管理员手动触发接口，稳定后升级为 **方案A（node-cron）**。
+
+---
+
+## 四、石化通交互流程（逐步骤实现）
+
+### Step 1: 构建推送消息
+
+```javascript
+async function buildDailyMessage(userId) {
+    const dueItems = await studyReminderService.getDueReviews(userId, 3);
+    if (dueItems.length === 0) return null; // 无待复习
+
+    const first = dueItems[0];
+    const quiz = await generateQuiz(first.knowledgeId); // 复用现有 generate-quiz
+
+    return `【测井培训 · 今日复习】📚\n\n` +
+           `知识点: ${first.knowledgeId.title}\n` +
+           `──────────────────\n` +
+           `Q: ${quiz.question}\n` +
+           quiz.options.map((opt, i) => `   ${String.fromCharCode(65+i)}. ${opt}`).join('\n') +
+           `\n──────────────────\n` +
+           `回复 A/B/C/D 选择答案\n` +
+           `回复 N 跳过此题`;
+}
+```
+
+### Step 2: 通过 mcp-sinopec 发送
+
+```javascript
+// 调用 MCP 工具发送消息
+// 注意: mcp-sinopec 发送到的是"当前聚焦的石化通聊天窗口"
+// 实际使用时需要:
+//   1. 确认石化通目标聊天窗口已打开并聚焦
+//   2. 或者预设聊天窗口（通过窗口标题定位）
+
+const result = await task(
+    category="unspecified-low",
+    load_skills=["mcp-sinopec"],
+    prompt=`
+        使用 mcp-sinopec 向石化通发送以下消息:
+        ${message}
+
+        执行步骤:
+        1. 先 sinopec_status 检查石化通是否运行
+        2. 切换到正确的聊天窗口（测井培训群或个人）
+        3. sinopec_send 发送消息
+        4. 确认发送成功
+    `
+);
+```
+
+**⚠️ 当前限制**: mcp-sinopec 向"当前聚焦的石化通聊天窗口"发送消息。这就要求：
+- 石化通客户端必须在登录状态
+- 目标聊天窗口必须打开/可切换到
+- 实际部署时需要一个专用的"机器人账号"的石化通窗口
+
+### Step 3: 接收用户回复（轮询 OCR）
+
+```javascript
+// 通过定时 OCR 读取石化通消息窗口
+// 检测是否有新的回复消息
+
+async function pollReply(userId, timeout = 300000) { // 5分钟超时
+    const startTime = Date.now();
+    while (Date.now() - startTime < timeout) {
+        const result = await task(
+            category="unspecified-low",
+            load_skills=["mcp-sinopec"],
+            prompt="使用 sinopec_read 读取石化通最新消息，返回OCR识别结果"
+        );
+        
+        // 解析 OCR 结果，提取用户回复
+        const reply = parseReply(result.text);
+        if (reply && isValidReply(reply)) {
+            return reply;
+        }
+        
+        await sleep(5000); // 每5秒轮询一次
+    }
+    return null;
+}
+```
+
+### Step 4: 处理回复并反馈
+
+```javascript
+async function handleReply(userId, reply, currentItem) {
+    const correctAnswer = currentItem.quiz.correctAnswer;
+    const isCorrect = reply.answer === correctAnswer;
+    const quality = isCorrect ? 
+        (reply.confidence === 'high' ? 5 : 4) : 
+        (reply.answer ? 2 : 0);
+
+    // 更新 SRS 排期
+    const next = calculateNextReview(quality, currentItem);
+    await LearningProgress.findByIdAndUpdate(currentItem._id, {
+        easeFactor: next.easeFactor,
+        interval: next.interval,
+        reviewCount: currentItem.reviewCount + 1,
+        nextReviewAt: next.nextReviewAt,
+        lastReviewAt: new Date(),
+        lastQuality: quality,
+    });
+
+    // 构建反馈消息
+    const feedback = isCorrect ? 
+        buildCorrectFeedback(currentItem) : 
+        buildWrongFeedback(currentItem, correctAnswer);
+
+    // 通过石化通发送反馈
+    await sendViaSinopec(feedback);
+}
+```
+
+---
+
+## 五、LearningProgress 模型扩展
+
+在现有模型上增加复习排期字段（新增约 25 行）：
+
+```javascript
+// 新增字段到 learningProgressSchema
+reviewSchedule: {
+    type: {
+        easeFactor: { type: Number, default: 2.5 },        // SM-2 难度系数 1.3-∞
+        interval: { type: Number, default: 0 },              // 当前间隔（天）
+        reviewCount: { type: Number, default: 0 },           // 复习次数
+        nextReviewAt: { type: Date, default: null },         // 下次复习时间
+        lastReviewAt: { type: Date },                        // 最后复习时间
+        lastQuality: { type: Number, min: 0, max: 5 },       // 上次复习质量
+        consecutiveCorrect: { type: Number, default: 0 },    // 连续正确次数
+        retentionHistory: [{                                  // 掌握度历史
+            date: Date,
+            quality: Number,
+            interval: Number,
+            score: Number,    // 本次答题得分 0-100
+        }],
+    },
+    default: {},
+},
+```
+
+---
+
+## 六、路由注册
+
+```javascript
+// server.js 新增
+const studyReminderRoutes = require('./routes/study-reminder');
+app.use('/api/study-reminder', studyReminderRoutes);
+```
+
+```javascript
+// routes/study-reminder.js
+router.get('/due', authenticateToken, controller.getDueReviews);
+router.post('/submit', authenticateToken, controller.submitReview);
+router.get('/stats', authenticateToken, controller.getReviewStats);
+router.post('/push-today', authenticateToken, requireRole(['admin']), controller.triggerPush);
+```
+
+---
+
+## 七、环境变量
+
+```ini
+# .env 新增
+# 石化通推送开关
+ENABLE_SINOPEC_PUSH=false
+
+# 复习推送配置
+DAILY_PUSH_TIME=09:00
+DAILY_PUSH_MAX_ITEMS=5
+REVIEW_REMINDER_INTERVAL=15:00
+
+# 轮询配置
+REPLY_POLL_INTERVAL=5000   # 毫秒
+REPLY_POLL_TIMEOUT=300000  # 5分钟
+
+# 石化通目标聊天（可选，留空则发送到当前聚焦窗口）
+SINOPEC_TARGET_CHAT=
+```
+
+---
+
+## 八、实施步骤
+
+| 阶段 | 内容 | 预估工时 | 前提 |
+|------|------|----------|------|
+| **Phase 1** | LearningProgress 模型扩字段 + SM-2 算法 | 0.5 天 | 现有数据库兼容 |
+| **Phase 2** | `studyReminderService.js` 基础服务（获取due、格式化消息） | 0.5 天 | Phase 1 |
+| **Phase 3** | 新增 3 个 API + 路由注册 | 0.5 天 | Phase 2 |
+| **Phase 4** | mcp-sinopec 发送集成（通过子代理调用） | 0.5 天 | mcp-sinopec 正常 |
+| **Phase 5** | 轮询接收回复逻辑 | 0.5 天 | Phase 4 |
+| **Phase 6** | 定时调度（登录触发 / node-cron） | 0.5 天 | Phase 3+5 |
+| **Phase 7** | 前端仪表盘"今日复习"卡片 + 统计页面 | 1 天 | Phase 3 |
+| **合计** | | **~3 天** | |
+
+### 实施注意事项
+
+1. **石化通机器人账号**：需要一个专用的石化通账号，保持在线+聚焦在目标聊天窗口。建议在独立机器上运行推送服务。
+2. **回复识别精度**：OCR 识别中文可能不完美，建议用户回复简单的字母（A/B/C/D）或数字，降低 OCR 错误率。
+3. **并发控制**：多个用户同时回复时需排队处理，不能丢失回复。
+4. **降级策略**：石化通不可用时不阻塞学习系统，`ENABLE_SINOPEC_PUSH=false` 时可降级为 Web 端复习。
+5. **防重复推送**：每天每人只推送一次，用 Redis 或内存 Map 记录推送状态（或查 LearningProgress 的 `lastReviewAt` 是否为今天）。
+
+---
+
+## 九、与现有系统的集成点
+
+| 现有模块 | 集成方式 |
+|----------|----------|
+| `aiRecommendationController.getReminders()` | 石化通推送是"提醒"的一种实现，可替换或互补 |
+| `controllers/learningProgressController` | 复习提交(POST /submit)可复用 `updateFileProgress` 的部分逻辑 |
+| `utils/localAIService` | 生成复习题目可复用 `generateQuestions` 的规则模板 |
+| `routes/exams.js` | 错题导入复习队列的逻辑可放在 `examController.submitExam` 中 |
+| `.sisyphus/tasks/daily-checkin.js` | 每日打卡数据可作为"连续学习天数"的输入 |
+
+---
+
+## 十、风险与缓解
+
+| 风险 | 影响 | 缓解措施 |
+|------|------|----------|
+| 石化通 OCR 识别错误 | 用户回复解析失败 | 回复格式简化（单字母）；置信度<50%时要求重发 |
+| 石化通窗口最小化/关闭 | 无法发送 | `sinopec_status` 前置检查；自动恢复窗口 |
+| 多人回复时乱序 | 答案匹配错误 | 每次推送带序号标识(`QID:xxx`)；回复中带序号回传 |
+| Express 单进程崩溃 | 定时任务丢失 | `process.on('uncaughtException')` 恢复；pm2 守护 |
+| 内网网络不稳定 | 消息延迟 | 队列缓冲（内存数组）；超时后记录失败次日重试 |
+
+---
+
+_生成时间: 2026-07-10_
+_基于: mcp-sinopec SKILL.md, logging-study-platform 代码库现状_

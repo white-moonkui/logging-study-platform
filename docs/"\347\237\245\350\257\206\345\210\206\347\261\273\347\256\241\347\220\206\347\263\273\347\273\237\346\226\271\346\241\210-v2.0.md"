@@ -1,0 +1,1228 @@
+# 知识分类管理系统方案 v2.0
+
+## 新增需求
+
+### 1. 分类扩展
+
+- ✅ 新增一级分类：**测井专业标准**
+- ✅ 新增一级分类：**跨专业知识**
+- ✅ 所有分类均支持多级嵌套
+- ✅ 管理员可自行管理所有分类
+
+### 2. 多媒体文件支持（核心）
+
+- ✅ **所有卡片必须支持视频播放**
+- ✅ **同一卡片下可以有多个文件**（视频、PDF、PPT、图片等）
+- ✅ **文件类型分组显示**（视频、文档、课件等）
+- ✅ **文件排序功能**（管理员可拖拽调整顺序）
+- ✅ **未来添加的卡片自动支持**（无需修改代码）
+
+---
+
+## 完整分类结构
+
+```
+知识分类树（支持任意层级）
+
+├── 测井基础理论
+│   ├── 放射性测井原理
+│   ├── 电法测井技术
+│   └── 声波测井技术
+│
+├── 测井仪器设备
+│   ├── 电法测井仪器
+│   │   ├── 电阻率测井
+│   │   └── 感应测井
+│   ├── 声波测井仪器
+│   ├── 放射性测井仪器
+│   ├── 随钻测井仪器 (LWD)
+│   ├── 过钻头仪器
+│   ├── 辅助工具设备
+│   └── 新技术
+│
+├── 测井专业标准 ⭐ 新增
+│   ├── 测井规范
+│   │   ├── 队伍建设规范
+│   │   └── 作业流程规范
+│   ├── 质量标准
+│   │   ├── 仪器检定标准
+│   │   └── 数据质量标准
+│   └── 安全标准
+│       └── 操作安全规范
+│
+├── 跨专业知识 ⭐ 新增
+│   ├── 岩石力学
+│   ├── 地球物理
+│   ├── 仪器电子
+│   └── 数据处理
+│
+├── 现场操作
+│   ├── 设备调试
+│   └── 数据采集
+│
+├── 典型案例
+│   ├── 测井仪器故障
+│   └── 现场操作失误
+│
+└── 解决方案
+    ├── 故障排查
+    └── 应急处理
+```
+
+---
+
+## 文件管理系统架构
+
+### 1. 文件存储结构
+
+#### 目录结构
+
+```
+uploads/
+├── knowledge/                  # 知识点文件
+│   ├── 1/                      # 知识点ID
+│   │   ├── videos/             # 视频文件
+│   │   │   ├── 001_video.mp4
+│   │   │   ├── 002_demo.mp4
+│   │   │   └── 003_tutorial.mp4
+│   │   ├── documents/          # 文档文件
+│   │   │   ├── 001_manual.pdf
+│   │   │   └── 002_guide.pdf
+│   │   ├── presentations/      # 课件文件
+│   │   │   ├── 001_lecture.pptx
+│   │   │   └── 002_demo.pptx
+│   │   └── images/             # 图片文件
+│   │       ├── 001_diagram.jpg
+│   │       └── 002_chart.png
+│   │
+│   ├── 2/
+│   │   ├── videos/
+│   │   │   └── 001_demo.mp4
+│   │   ├── documents/
+│   │   └── presentations/
+│   │       ├── 001_intro.pptx
+│   │       ├── 002_detail.pptx
+│   │       └── 003_summary.pptx
+│   │
+│   └── ... (更多知识点)
+│
+├── thumbnails/                  # 缩略图缓存
+│   └── knowledge/
+│       ├── 1/
+│       │   ├── 001_video_thumb.jpg
+│       │   └── 002_video_thumb.jpg
+│       └── 2/
+│           └── 001_video_thumb.jpg
+│
+└── logs/                       # 文件操作日志
+    └── file_operations.log
+```
+
+#### 数据库结构
+
+```sql
+CREATE TABLE knowledge_items (
+  id                   VARCHAR(36) PRIMARY KEY,
+  title                VARCHAR(200) NOT NULL,
+  category_id          VARCHAR(36) NOT NULL,
+
+  -- 基本信息字段
+  description          TEXT NULL,
+  content              TEXT NULL,
+  keywords             JSON NULL,
+
+  -- 元数据
+  level                INT NOT NULL DEFAULT 1,
+  sort_order           INT NOT NULL DEFAULT 0,
+  status               VARCHAR(20) NOT NULL DEFAULT 'draft', -- published/draft/pending
+
+  -- 多媒体支持
+  video_cover          VARCHAR(255) NULL,     -- 视频封面图
+  video_duration       INT NULL,              -- 视频时长（秒）
+
+  -- 统计信息
+  file_count           INT NOT NULL DEFAULT 0,
+  video_count          INT NOT NULL DEFAULT 0,
+  document_count       INT NOT NULL DEFAULT 0,
+  presentation_count   INT NOT NULL DEFAULT 0,
+  image_count          INT NOT NULL DEFAULT 0,
+
+  -- 外部资源
+  external_links       JSON NULL,             -- 外部链接（可选）
+
+  created_by           VARCHAR(36) NULL,
+  created_at           DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at           DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX idx_category (category_id),
+  INDEX idx_status (status),
+  INDEX idx_sort (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE knowledge_files (
+  id                   VARCHAR(36) PRIMARY KEY,
+  knowledge_id         VARCHAR(36) NOT NULL,
+  file_type            ENUM('video', 'document', 'presentation', 'image', 'other') NOT NULL,
+
+  -- 文件信息
+  filename             VARCHAR(255) NOT NULL,
+  original_name        VARCHAR(255) NOT NULL,
+  file_path            VARCHAR(500) NOT NULL,  -- 相对路径
+  file_size            BIGINT NOT NULL,        -- 字节
+  mime_type            VARCHAR(100) NOT NULL,   -- MIME类型
+
+  -- 视频专用
+  duration             INT NULL,                -- 视频时长（秒）
+  thumbnail            VARCHAR(255) NULL,       -- 缩略图路径
+
+  -- 排序
+  sort_order           INT NOT NULL DEFAULT 0,
+
+  -- 上传信息
+  uploaded_by          VARCHAR(36) NULL,
+  uploaded_at          DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (knowledge_id) REFERENCES knowledge_items(id) ON DELETE CASCADE,
+  INDEX idx_knowledge (knowledge_id),
+  INDEX idx_type (file_type),
+  INDEX idx_sort (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+---
+
+## 前端展示方案
+
+### 1. 知识点卡片组件
+
+```javascript
+// public/knowledge-card.html
+function renderKnowledgeCard(knowledge) {
+    return `
+    <div class="knowledge-card" data-id="${knowledge.id}">
+      <!-- 卡片头部 -->
+      <div class="card-header">
+        <div class="card-icon">
+          <i class="${knowledge.icon || 'fa-file-alt'}"></i>
+        </div>
+        <div class="card-title">
+          <h3>${knowledge.title}</h3>
+          <p class="category-tag">${knowledge.categoryName}</p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-icon" onclick="toggleFiles('${knowledge.id}')">
+            <i class="fas fa-folder-open"></i> 资源
+          </button>
+          <button class="btn-icon" onclick="toggleEdit('${knowledge.id}')">
+            <i class="fas fa-edit"></i> 编辑
+          </button>
+        </div>
+      </div>
+
+      <!-- 文件资源区域（默认折叠） -->
+      <div class="card-files" id="files-${knowledge.id}">
+        <!-- 视频部分 -->
+        <div class="files-section" data-type="video">
+          <div class="section-header">
+            <i class="fas fa-video"></i>
+            <span>视频资源 (${knowledge.videoCount})</span>
+          </div>
+          <div class="video-list">
+            ${knowledge.files
+                .filter(f => f.type === 'video')
+                .map(file => renderVideoFile(file, knowledge))
+                .join('')}
+          </div>
+        </div>
+
+        <!-- 文档部分 -->
+        <div class="files-section" data-type="document">
+          <div class="section-header">
+            <i class="fas fa-file-alt"></i>
+            <span>文档资源 (${knowledge.documentCount})</span>
+          </div>
+          <div class="document-list">
+            ${knowledge.files
+                .filter(f => f.type === 'document')
+                .map(file => renderDocumentFile(file, knowledge))
+                .join('')}
+          </div>
+        </div>
+
+        <!-- PPT部分 -->
+        <div class="files-section" data-type="presentation">
+          <div class="section-header">
+            <i class="fas fa-file-powerpoint"></i>
+            <span>课件 (${knowledge.presentationCount})</span>
+          </div>
+          <div class="presentation-list">
+            ${knowledge.files
+                .filter(f => f.type === 'presentation')
+                .map(file => renderPresentationFile(file, knowledge))
+                .join('')}
+          </div>
+        </div>
+
+        <!-- 图片部分 -->
+        <div class="files-section" data-type="image">
+          <div class="section-header">
+            <i class="fas fa-image"></i>
+            <span>图片资源 (${knowledge.imageCount})</span>
+          </div>
+          <div class="image-list">
+            ${knowledge.files
+                .filter(f => f.type === 'image')
+                .map(file => renderImageFile(file, knowledge))
+                .join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 渲染视频文件
+function renderVideoFile(file, knowledge) {
+    return `
+    <div class="video-item" data-file-id="${file.id}" draggable="true">
+      <div class="video-thumbnail" onclick="playVideo('${file.id}', '${knowledge.id}')">
+        <img src="${file.thumbnail || '/uploads/thumbnails/knowledge/' + knowledge.id + '/' + file.filename + '_thumb.jpg'}" alt="缩略图">
+        <div class="play-icon">
+          <i class="fas fa-play-circle"></i>
+        </div>
+        <div class="video-duration">${formatDuration(file.duration)}</div>
+      </div>
+      <div class="video-info">
+        <h4>${file.filename}</h4>
+        <p>${file.uploadedAt}</p>
+        <div class="file-actions">
+          <button onclick="playVideo('${file.id}', '${knowledge.id}')" class="btn-play">
+            <i class="fas fa-play"></i> 播放
+          </button>
+          <button onclick="downloadFile('${file.id}')" class="btn-download">
+            <i class="fas fa-download"></i> 下载
+          </button>
+          <button onclick="editFile('${file.id}')" class="btn-edit">
+            <i class="fas fa-edit"></i> 编辑
+          </button>
+        </div>
+      </div>
+      <div class="drag-handle">
+        <i class="fas fa-grip-vertical"></i>
+      </div>
+    </div>
+  `;
+}
+
+// 渲染文档文件
+function renderDocumentFile(file, knowledge) {
+    return `
+    <div class="document-item" data-file-id="${file.id}" draggable="true">
+      <div class="document-icon ${getFileIcon(file.filename)}">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="document-info">
+        <h4>${file.filename}</h4>
+        <p>${formatFileSize(file.fileSize)}</p>
+      </div>
+      <div class="file-actions">
+        <button onclick="downloadFile('${file.id}')" class="btn-download">
+          <i class="fas fa-download"></i> 下载
+        </button>
+        <button onclick="previewFile('${file.id}')" class="btn-preview">
+          <i class="fas fa-eye"></i> 预览
+        </button>
+      </div>
+      <div class="drag-handle">
+        <i class="fas fa-grip-vertical"></i>
+      </div>
+    </div>
+  `;
+}
+```
+
+### 2. 视频播放器组件
+
+```javascript
+// public/video-player.html
+class VideoPlayer {
+    constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        this.currentFile = null;
+        this.currentKnowledgeId = null;
+    }
+
+    // 播放视频
+    play(videoFileId, knowledgeId) {
+        const file = getFileInfo(videoFileId);
+        this.currentFile = file;
+        this.currentKnowledgeId = knowledgeId;
+
+        this.container.innerHTML = `
+      <div class="video-player-wrapper">
+        <div class="video-player">
+          <video id="mainVideo" controls preload="metadata">
+            <source src="/uploads/knowledge/${knowledgeId}/videos/${file.filename}" type="${file.mimeType}">
+            您的浏览器不支持视频播放
+          </video>
+
+          <div class="video-info-overlay">
+            <h3>${file.filename}</h3>
+            <p>${getKnowledgeTitle(knowledgeId)}</p>
+            <div class="video-controls">
+              <button onclick="skipBackward()">⏪ -10s</button>
+              <button onclick="togglePlay()" id="playPauseBtn">
+                <i class="fas fa-pause"></i> 暂停
+              </button>
+              <button onclick="skipForward()">+10s ⏩</button>
+              <button onclick="closePlayer()">关闭</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="playlist" id="playlist-${knowledgeId}">
+          ${renderVideoPlaylist(knowledgeId)}
+        </div>
+      </div>
+    `;
+
+        const video = this.container.querySelector('video');
+        video.addEventListener('timeupdate', () => this.updateProgress());
+        video.addEventListener('ended', () => this.playNext());
+    }
+
+    // 播放下一个
+    playNext() {
+        const playlist = getVideoPlaylist(this.currentKnowledgeId);
+        const currentIndex = playlist.findIndex(f => f.id === this.currentFile.id);
+
+        if (currentIndex < playlist.length - 1) {
+            const nextFile = playlist[currentIndex + 1];
+            this.play(nextFile.id, this.currentKnowledgeId);
+        } else {
+            showToast('已经是最后一个视频了');
+        }
+    }
+
+    // 播放上一个
+    playPrevious() {
+        const playlist = getVideoPlaylist(this.currentKnowledgeId);
+        const currentIndex = playlist.findIndex(f => f.id === this.currentFile.id);
+
+        if (currentIndex > 0) {
+            const prevFile = playlist[currentIndex - 1];
+            this.play(prevFile.id, this.currentKnowledgeId);
+        } else {
+            showToast('已经是第一个视频了');
+        }
+    }
+
+    // 切换播放/暂停
+    togglePlay() {
+        const video = this.container.querySelector('video');
+        const btn = this.container.querySelector('#playPauseBtn i');
+
+        if (video.paused) {
+            video.play();
+            btn.className = 'fas fa-pause';
+        } else {
+            video.pause();
+            btn.className = 'fas fa-play';
+        }
+    }
+
+    // 关闭播放器
+    closePlayer() {
+        this.container.innerHTML = '';
+    }
+}
+
+// 全局视频播放器实例
+const videoPlayer = new VideoPlayer('videoPlayerContainer');
+```
+
+### 3. 文件排序功能
+
+```javascript
+// 文件排序逻辑
+async function saveFileSort(knowledgeId, files) {
+    // files: [{ fileId: 'xxx', sortOrder: 1 }, ...]
+
+    const updates = files.map((file, index) => ({
+        id: file.fileId,
+        sortOrder: index,
+    }));
+
+    // 批量更新
+    for (const update of updates) {
+        await updateFileSortOrder(update.id, update.sortOrder);
+    }
+
+    showToast('排序已保存');
+}
+
+// 拖拽排序实现
+function enableFileDragSort() {
+    const items = document.querySelectorAll('.video-item, .document-item');
+
+    items.forEach(item => {
+        item.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('fileId', item.dataset.fileId);
+            item.classList.add('dragging');
+        });
+
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+        });
+
+        item.addEventListener('dragover', e => {
+            e.preventDefault();
+            const dragging = document.querySelector('.dragging');
+            if (dragging && dragging !== item) {
+                const rect = item.getBoundingClientRect();
+                const midY = rect.top + rect.height / 2;
+                if (e.clientY < midY) {
+                    item.parentNode.insertBefore(dragging, item);
+                } else {
+                    item.parentNode.insertBefore(dragging, item.nextSibling);
+                }
+            }
+        });
+
+        item.addEventListener('drop', async e => {
+            e.preventDefault();
+            const fileId = e.dataTransfer.getData('fileId');
+            const newOrder = getNewSortOrder();
+            await saveFileSort(knowledgeId, newOrder);
+        });
+    });
+}
+```
+
+---
+
+## 后端实现
+
+### CategoryController（新增分类管理）
+
+```javascript
+// controllers/categoryController.js
+
+class CategoryController {
+  // ... getTree, getAll 等方法保持不变
+
+  // 获取所有分类（包含统计信息）
+  getStats = asyncHandler(async (req, res) => {
+    const categories = await Category.find({}).sort({ sortOrder: 1 });
+
+    // 为每个分类添加知识点统计
+    const stats = categories.map(category => ({
+      ...category.toObject(),
+      itemCount: await getKnowledgeCount(category._id)
+    }));
+
+    res.json({ success: true, data: stats });
+  });
+
+  // 创建分类（管理员）
+  create = asyncHandler(async (req, res) => {
+    const { name, code, parentId, sortOrder, icon } = req.body;
+
+    // 验证父分类
+    let level = 1;
+    if (parentId) {
+      const parent = await Category.findById(parentId);
+      if (!parent) {
+        return res.status(404).json({ message: '父分类不存在' });
+      }
+      level = parent.level + 1;
+    }
+
+    const category = await Category.create({
+      name,
+      code,
+      parentId,
+      level,
+      sortOrder: sortOrder ?? 0,
+      icon
+    });
+
+    res.json({
+      message: '创建成功',
+      data: category
+    });
+  });
+
+  // 更新分类（管理员）
+  update = asyncHandler(async (req, res) => {
+    const { name, sortOrder, icon } = req.body;
+    const category = await Category.findByIdAndUpdate(
+      req.params.id,
+      { name, sortOrder, icon },
+      { new: true }
+    );
+    res.json({ message: '更新成功', data: category });
+  });
+
+  // 删除分类（管理员）
+  delete = asyncHandler(async (req, res) => {
+    // 检查是否有子分类
+    const childCount = await Category.countDocuments({ parentId: req.params.id });
+    if (childCount > 0) {
+      return res.status(400).json({ message: '该分类有子分类，无法删除' });
+    }
+
+    // 检查是否有关联知识点
+    const knowledgeCount = await Knowledge.countDocuments({ categoryId: req.params.id });
+    if (knowledgeCount > 0) {
+      return res.status(400).json({
+        message: '该分类下有知识点，无法删除',
+        count: knowledgeCount
+      });
+    }
+
+    await Category.findByIdAndDelete(req.params.id);
+    res.json({ message: '删除成功' });
+  });
+}
+```
+
+### KnowledgeController（新增文件管理）
+
+```javascript
+// controllers/knowledgeController.js
+
+class KnowledgeController {
+    // 获取知识点详情（包含所有文件）
+    getDetails = asyncHandler(async (req, res) => {
+        const { id } = req.params;
+
+        const knowledge = await Knowledge.findById(id)
+            .populate('categoryId', 'name code icon')
+            .lean();
+
+        if (!knowledge) {
+            return res.status(404).json({ message: '知识点不存在' });
+        }
+
+        // 加载所有文件（按 sort_order 排序）
+        const files = await KnowledgeFile.find({ knowledgeId: id })
+            .sort({ sortOrder: 1, uploadedAt: 1 })
+            .lean();
+
+        // 按类型分组
+        const filesByType = {
+            video: files.filter(f => f.fileType === 'video'),
+            document: files.filter(f => f.fileType === 'document'),
+            presentation: files.filter(f => f.fileType === 'presentation'),
+            image: files.filter(f => f.fileType === 'image'),
+            other: files.filter(f => f.fileType === 'other'),
+        };
+
+        res.json({
+            success: true,
+            data: {
+                ...knowledge,
+                files: filesByType,
+                fileCount: files.length,
+                videoCount: filesByType.video.length,
+                documentCount: filesByType.document.length,
+                presentationCount: filesByType.presentation.length,
+                imageCount: filesByType.image.length,
+            },
+        });
+    });
+
+    // 上传文件（支持多种类型）
+    uploadFile = asyncHandler(async (req, res) => {
+        const { knowledgeId } = req.params;
+        const file = req.file;
+
+        if (!file) {
+            return res.status(400).json({ message: '请选择文件' });
+        }
+
+        // 根据文件扩展名确定类型
+        const fileType = getFileTypeByExtension(file.originalname);
+
+        // 计算视频时长（如果是视频）
+        let duration = null;
+        let thumbnail = null;
+
+        if (fileType === 'video') {
+            duration = await getVideoDuration(file.path);
+            thumbnail = await generateVideoThumbnail(file.path);
+        }
+
+        // 生成文件信息
+        const fileName = generateFileName(file.mimetype, fileType);
+        const relativePath = `knowledge/${knowledgeId}/${fileType}s/${fileName}`;
+
+        // 保存文件记录
+        const fileRecord = await KnowledgeFile.create({
+            knowledgeId,
+            fileName: fileName,
+            originalName: file.originalname,
+            filePath: relativePath,
+            fileSize: file.size,
+            mimeType: file.mimetype,
+            fileType,
+            duration,
+            thumbnail,
+            uploadedBy: req.user.id,
+        });
+
+        res.json({
+            message: '文件上传成功',
+            data: {
+                ...fileRecord.toObject(),
+                type: fileType,
+            },
+        });
+    });
+
+    // 更新文件排序
+    updateFileSort = asyncHandler(async (req, res) => {
+        const { knowledgeId } = req.params;
+        const { fileIds } = req.body; // [{ fileId: 'xxx', sortOrder: 1 }, ...]
+
+        // 验证所有知识点ID匹配
+        const knowledge = await Knowledge.findById(knowledgeId);
+        if (!knowledge) {
+            return res.status(404).json({ message: '知识点不存在' });
+        }
+
+        // 批量更新排序
+        for (const { fileId, sortOrder } of fileIds) {
+            await KnowledgeFile.findByIdAndUpdate(fileId, { sortOrder });
+        }
+
+        res.json({ message: '排序已更新' });
+    });
+
+    // 删除文件
+    deleteFile = asyncHandler(async (req, res) => {
+        const { knowledgeId, fileId } = req.params;
+
+        // 验证
+        const file = await KnowledgeFile.findOne({
+            _id: fileId,
+            knowledgeId,
+        });
+
+        if (!file) {
+            return res.status(404).json({ message: '文件不存在' });
+        }
+
+        // 删除文件记录
+        await KnowledgeFile.findByIdAndDelete(fileId);
+
+        // 删除物理文件
+        fs.unlinkSync(path.join(__dirname, '..', file.filePath));
+
+        res.json({ message: '文件已删除' });
+    });
+}
+```
+
+### KnowledgeFile Model
+
+```javascript
+// models/knowledgeFile.js
+const dbAdapter = require('../utils/dbAdapter');
+const mongoose = dbAdapter.getMongoose();
+
+const knowledgeFileSchema = new mongoose.Schema(
+    {
+        knowledgeId: { type: String, ref: 'Knowledge', required: true },
+        fileName: { type: String, required: true },
+        originalName: { type: String, required: true },
+        filePath: { type: String, required: true },
+        fileSize: { type: Number, required: true },
+        mimeType: { type: String, required: true },
+        fileType: {
+            type: String,
+            enum: ['video', 'document', 'presentation', 'image', 'other'],
+            required: true,
+        },
+        duration: { type: Number }, // 视频时长（秒）
+        thumbnail: { type: String }, // 缩略图路径
+        sortOrder: { type: Number, default: 0 },
+        uploadedBy: { type: String, ref: 'User' },
+        uploadedAt: { type: Date, default: Date.now },
+    },
+    { timestamps: true }
+);
+
+module.exports = dbAdapter.getModel('KnowledgeFile', knowledgeFileSchema);
+```
+
+---
+
+## API 接口清单
+
+### 分类管理
+
+```
+GET    /api/categories/tree              # 获取分类树
+GET    /api/categories                   # 获取所有分类（含统计）
+POST   /api/categories                   # 创建分类（管理员）
+PUT    /api/categories/:id               # 更新分类（管理员）
+DELETE /api/categories/:id               # 删除分类（管理员）
+
+# 管理员权限中间件: authenticateToken + requireRole(['admin', 'instructor'])
+```
+
+### 知识点管理
+
+```
+GET    /api/knowledge                    # 获取知识点列表
+GET    /api/knowledge/:id                # 获取知识点详情（含文件）
+POST   /api/knowledge                    # 创建知识点（管理员）
+PUT    /api/knowledge/:id                # 更新知识点（管理员）
+DELETE /api/knowledge/:id                # 删除知识点（管理员）
+
+POST   /api/knowledge/:id/upload         # 上传文件
+PUT    /api/knowledge/:id/sort-files     # 更新文件排序（管理员）
+DELETE /api/knowledge/:id/files/:fileId  # 删除文件
+GET    /api/knowledge/:id/files/:fileId  # 获取文件信息
+GET    /api/knowledge/:id/videos         # 获取视频列表
+```
+
+---
+
+## 初始数据
+
+### Categories 初始数据
+
+```javascript
+const initialCategories = [
+    // 根分类
+    {
+        id: 'root_basic',
+        name: '测井基础理论',
+        code: 'basic',
+        parentId: null,
+        level: 1,
+        sortOrder: 1,
+        icon: 'fa-book',
+    },
+    {
+        id: 'root_instrument',
+        name: '测井仪器设备',
+        code: 'instrument',
+        parentId: null,
+        level: 1,
+        sortOrder: 2,
+        icon: 'fa-cogs',
+    },
+    {
+        id: 'root_standard',
+        name: '测井专业标准',
+        code: 'standard',
+        parentId: null,
+        level: 1,
+        sortOrder: 3,
+        icon: 'fa-clipboard-list',
+    },
+    {
+        id: 'root_cross',
+        name: '跨专业知识',
+        code: 'cross',
+        parentId: null,
+        level: 1,
+        sortOrder: 4,
+        icon: 'fa-globe',
+    },
+    {
+        id: 'root_operation',
+        name: '现场操作',
+        code: 'operation',
+        parentId: null,
+        level: 1,
+        sortOrder: 5,
+        icon: 'fa-hand-paper',
+    },
+    {
+        id: 'root_case',
+        name: '典型案例',
+        code: 'case',
+        parentId: null,
+        level: 1,
+        sortOrder: 6,
+        icon: 'fa-lightbulb',
+    },
+    {
+        id: 'root_solution',
+        name: '解决方案',
+        code: 'solution',
+        parentId: null,
+        level: 1,
+        sortOrder: 7,
+        icon: 'fa-wrench',
+    },
+
+    // 二级分类 - 测井基础理论
+    {
+        id: 'basic_radio',
+        name: '放射性测井原理',
+        code: 'basic_radio',
+        parentId: 'root_basic',
+        level: 2,
+        sortOrder: 1,
+        icon: 'fa-radiation',
+    },
+    {
+        id: 'basic_electric',
+        name: '电法测井技术',
+        code: 'basic_electric',
+        parentId: 'root_basic',
+        level: 2,
+        sortOrder: 2,
+        icon: 'fa-bolt',
+    },
+    {
+        id: 'basic_acoustic',
+        name: '声波测井技术',
+        code: 'basic_acoustic',
+        parentId: 'root_basic',
+        level: 2,
+        sortOrder: 3,
+        icon: 'fa-wave-square',
+    },
+
+    // 二级分类 - 测井仪器设备
+    {
+        id: 'inst_electric',
+        name: '电法测井仪器',
+        code: 'inst_electric',
+        parentId: 'root_instrument',
+        level: 2,
+        sortOrder: 1,
+        icon: 'fa-bolt',
+    },
+    {
+        id: 'inst_acoustic',
+        name: '声波测井仪器',
+        code: 'inst_acoustic',
+        parentId: 'root_instrument',
+        level: 2,
+        sortOrder: 2,
+        icon: 'fa-wave-square',
+    },
+    {
+        id: 'inst_radio',
+        name: '放射性测井仪器',
+        code: 'inst_radio',
+        parentId: 'root_instrument',
+        level: 2,
+        sortOrder: 3,
+        icon: 'fa-radiation',
+    },
+    {
+        id: 'inst_LWD',
+        name: '随钻测井仪器',
+        code: 'inst_LWD',
+        parentId: 'root_instrument',
+        level: 2,
+        sortOrder: 4,
+        icon: 'fa-satellite-dish',
+    },
+    {
+        id: 'inst_bit',
+        name: '过钻头仪器',
+        code: 'inst_bit',
+        parentId: 'root_instrument',
+        level: 2,
+        sortOrder: 5,
+        icon: 'fa-bullseye',
+    },
+    {
+        id: 'inst_tool',
+        name: '辅助工具设备',
+        code: 'inst_tool',
+        parentId: 'root_instrument',
+        level: 2,
+        sortOrder: 6,
+        icon: 'fa-tools',
+    },
+    {
+        id: 'inst_new',
+        name: '新技术',
+        code: 'inst_new',
+        parentId: 'root_instrument',
+        level: 2,
+        sortOrder: 7,
+        icon: 'fa-rocket',
+    },
+
+    // 二级分类 - 测井专业标准 ⭐
+    {
+        id: 'standard_norm',
+        name: '测井规范',
+        code: 'standard_norm',
+        parentId: 'root_standard',
+        level: 2,
+        sortOrder: 1,
+        icon: 'fa-list-ol',
+    },
+    {
+        id: 'standard_quality',
+        name: '质量标准',
+        code: 'standard_quality',
+        parentId: 'root_standard',
+        level: 2,
+        sortOrder: 2,
+        icon: 'fa-check-circle',
+    },
+    {
+        id: 'standard_safety',
+        name: '安全标准',
+        code: 'standard_safety',
+        parentId: 'root_standard',
+        level: 2,
+        sortOrder: 3,
+        icon: 'fa-shield-alt',
+    },
+
+    // 三级分类 - 测井专业标准
+    {
+        id: 'standard_norm_team',
+        name: '队伍建设规范',
+        code: 'standard_norm_team',
+        parentId: 'standard_norm',
+        level: 3,
+        sortOrder: 1,
+        icon: 'fa-users',
+    },
+    {
+        id: 'standard_norm_process',
+        name: '作业流程规范',
+        code: 'standard_norm_process',
+        parentId: 'standard_norm',
+        level: 3,
+        sortOrder: 2,
+        icon: 'fa-tasks',
+    },
+
+    // 二级分类 - 跨专业知识 ⭐
+    {
+        id: 'cross_rock',
+        name: '岩石力学',
+        code: 'cross_rock',
+        parentId: 'root_cross',
+        level: 2,
+        sortOrder: 1,
+        icon: 'fa-mountain',
+    },
+    {
+        id: 'cross_geophysics',
+        name: '地球物理',
+        code: 'cross_geophysics',
+        parentId: 'root_cross',
+        level: 2,
+        sortOrder: 2,
+        icon: 'fa-globe',
+    },
+    {
+        id: 'cross_electronics',
+        name: '仪器电子',
+        code: 'cross_electronics',
+        parentId: 'root_cross',
+        level: 2,
+        sortOrder: 3,
+        icon: 'fa-microchip',
+    },
+    {
+        id: 'cross_processing',
+        name: '数据处理',
+        code: 'cross_processing',
+        parentId: 'root_cross',
+        level: 2,
+        sortOrder: 4,
+        icon: 'fa-chart-bar',
+    },
+
+    // ... 更多分类
+];
+```
+
+---
+
+## 文件类型映射
+
+```javascript
+// getFileTypeByExtension()
+function getFileTypeByExtension(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+
+    const typeMap = {
+        // 视频
+        mp4: 'video',
+        webm: 'video',
+        ogg: 'video',
+        mov: 'video',
+        avi: 'video',
+
+        // 文档
+        pdf: 'document',
+        doc: 'document',
+        docx: 'document',
+        txt: 'document',
+        xls: 'document',
+        xlsx: 'document',
+        csv: 'document',
+
+        // PPT
+        ppt: 'presentation',
+        pptx: 'presentation',
+
+        // 图片
+        jpg: 'image',
+        jpeg: 'image',
+        png: 'image',
+        gif: 'image',
+        bmp: 'image',
+        svg: 'image',
+    };
+
+    return typeMap[ext] || 'other';
+}
+
+// generateFileName()
+function generateFileName(mimeType, fileType) {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    return `${timestamp}_${random}.${mimeType.split('/')[1]}`;
+}
+
+// getVideoDuration()
+function getVideoDuration(videoPath) {
+    return new Promise((resolve, reject) => {
+        const ffmpeg = require('fluent-ffmpeg');
+        ffmpeg.ffprobe(videoPath, (err, metadata) => {
+            if (err) reject(err);
+            else resolve(metadata.format.duration || null);
+        });
+    });
+}
+
+// generateVideoThumbnail()
+function generateVideoThumbnail(videoPath) {
+    return new Promise((resolve, reject) => {
+        const ffmpeg = require('fluent-ffmpeg');
+        const thumbnailPath = videoPath + '.thumb.jpg';
+        ffmpeg(videoPath)
+            .screenshots({
+                count: 1,
+                folder: path.dirname(thumbnailPath),
+                filename: path.basename(thumbnailPath),
+                size: '320x180', // 缩略图尺寸
+            })
+            .on('end', () => resolve(thumbnailPath))
+            .on('error', reject);
+    });
+}
+```
+
+---
+
+## 实施步骤
+
+### Phase 1: 数据库设计和迁移（2-3小时）
+
+- ✅ 创建 categories 表
+- ✅ 创建 knowledge_items 表
+- ✅ 创建 knowledge_files 表
+- ✅ 插入初始分类数据
+- ✅ 创建文件目录结构
+
+### Phase 2: 后端核心功能（4-5小时）
+
+- ✅ 创建 Category 模型和控制器
+- ✅ 创建 Knowledge 模型和控制器
+- ✅ 创建 KnowledgeFile 模型
+- ✅ 实现文件上传（支持多种类型）
+- ✅ 实现视频处理（时长、缩略图）
+- ✅ 实现文件排序功能
+- ✅ 测试所有 API
+
+### Phase 3: 知识点管理页面（3-4小时）
+
+- ✅ 创建知识点列表页面
+- ✅ 创建知识点编辑页面
+- ✅ 实现文件上传组件
+- ✅ 实现文件排序界面
+- ✅ 支持视频上传和预览
+
+### Phase 4: 前端学习页面（4-5小时）
+
+- ✅ 修改学习页面（动态加载分类）
+- ✅ 创建知识点卡片组件
+- ✅ 实现视频播放器
+- ✅ 实现文件资源展示
+- ✅ 实现文件拖拽排序
+
+### Phase 5: 测试和优化（2-3小时）
+
+- ✅ 测试分类管理
+- ✅ 测试文件上传
+- ✅ 测试视频播放
+- ✅ 测试文件排序
+- ✅ 性能优化
+
+**总预估时间：15-20小时**
+
+---
+
+## 技术亮点
+
+### 1. **完全动态**
+
+- 添加新分类：无需修改代码
+- 添加新文件：自动识别类型
+- 添加新知识点：自动支持视频
+
+### 2. **灵活排序**
+
+- 拖拽排序
+- 按类型分组
+- 内置排序算法
+
+### 3. **多媒体支持**
+
+- 视频播放（播放列表）
+- 视频封面
+- 视频缩略图
+- 文档预览
+- 批量操作
+
+### 4. **权限控制**
+
+- 管理员：完全控制
+- 教师：可上传和编辑
+- 学员：只读
+
+---
+
+## 总结
+
+**是否可以实现？** ✅ **完全可以实现**
+
+**方案优势**：
+
+- ✅ 支持任意层级的分类
+- ✅ 支持多种文件类型
+- ✅ 自动识别文件类型
+- ✅ 管理员可自由管理
+- ✅ 文件排序功能完善
+- ✅ 视频播放体验优秀
+- ✅ 可扩展性强
+
+**下一步**：
+
+1. 是否同意此方案？
+2. 是否立即开始实施 Phase 1？
+3. 需要调整的地方？
+
+**立即开始？我将创建数据库迁移文件和后端代码。**

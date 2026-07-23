@@ -1,0 +1,86 @@
+{
+    "name": "well-logging-training-platform",
+    "version": "1.1.0",
+    "description": "测井专业智能培训系统",
+    "main": "server.js",
+    "scripts": {
+        "devtoolkit:health": "echo 'Run: python devtoolkit/test_health.py'",
+        "devtoolkit:review": "echo 'Run: python devtoolkit/__main__.py review-required'",
+        "devtoolkit:show": "echo 'Run: python devtoolkit/__main__.py --show'",
+        "start": "node start.js",
+        "dev": "nodemon start.js",
+        "init": "node -e \"require('./utils/dbInitializer').initialize()\"",
+        "init-db": "npm run init",
+        "verify-db": "node -e \"require('./utils/dbInitializer').verify()\"",
+        "test": "echo '测试套件已移除，使用真实数据导入进行验证'",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "gate": "npm run lint && npm run format:check",
+        "prepare": "husky"
+    },
+    "lint-staged": {
+        "*.js": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "*.ts": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "*.{json,md,css}": [
+            "prettier --write"
+        ]
+    },
+    "dependencies": {
+        "axios": "^1.5.0",
+        "bcryptjs": "^2.4.3",
+        "compression": "^1.8.1",
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "jsonwebtoken": "^9.0.2",
+        "moment": "^2.29.4",
+        "mongoose": "^7.5.0",
+        "morgan": "^1.10.0",
+        "multer": "^1.4.5-lts.1",
+        "pdf-parse": "^2.4.5",
+        "pdfkit": "^0.17.2",
+        "pptxgenjs": "^4.0.1",
+        "redis": "^4.6.7",
+        "socket.io": "^4.7.2",
+        "uuid": "^9.0.0",
+        "winston": "^3.11.0",
+        "winston-daily-rotate-file": "^4.7.1",
+        "xlsx": "^0.18.5"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@playwright/test": "^1.58.1",
+        "eslint": "^10.0.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-n": "^17.24.0",
+        "eslint-plugin-prettier": "^5.5.5",
+        "globals": "^17.3.0",
+        "husky": "^9.1.7",
+        "jest": "^30.4.2",
+        "lint-staged": "^16.3.2",
+        "nodemon": "^3.0.1",
+        "prettier": "^3.8.1",
+        "supertest": "^7.2.2"
+    },
+    "keywords": [
+        "测井",
+        "培训",
+        "石油工程",
+        "智能学习"
+    ],
+    "author": "测井专业团队",
+    "license": "MIT",
+    "directories": {
+        "doc": "docs",
+        "test": "tests"
+    },
+    "type": "commonjs"
+}

@@ -1,0 +1,381 @@
+/**
+ * PPT Viewer Styles
+ * PPT预览组件样式
+ */
+
+.ppt-viewer-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: #1a1a2e;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Toolbar */
+.ppt-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.ppt-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ppt-toolbar-center {
+    flex: 1;
+    text-align: center;
+}
+
+.ppt-title {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.ppt-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ppt-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ppt-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.ppt-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.ppt-slide-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.ppt-slide-input {
+    width: 50px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    padding: 0 4px;
+}
+
+.ppt-slide-input:focus {
+    outline: none;
+    border-color: white;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Content */
+.ppt-content {
+    flex: 1;
+    position: relative;
+    background: #0f0f23;
+    overflow: hidden;
+}
+
+.ppt-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+}
+
+/* Loading */
+.ppt-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #0f0f23;
+    color: white;
+    z-index: 10;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Fallback */
+.ppt-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #0f0f23;
+    color: white;
+    text-align: center;
+    padding: 32px;
+}
+
+.ppt-fallback h3 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: #f39c12;
+}
+
+.ppt-fallback ul {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    text-align: left;
+}
+
+.ppt-fallback li {
+    padding: 8px 0;
+    padding-left: 24px;
+    position: relative;
+}
+
+.ppt-fallback li::before {
+    content: '•';
+    position: absolute;
+    left: 8px;
+    color: #667eea;
+}
+
+/* Note Panel */
+.ppt-note-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 20;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.ppt-note-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 500;
+    color: #333;
+}
+
+.ppt-note-close {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.ppt-note-close:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.ppt-note-input {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    resize: vertical;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.ppt-note-input:focus {
+    outline: none;
+}
+
+.ppt-note-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Button styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+/* Hidden utility */
+.hidden {
+    display: none !important;
+}
+
+/* Fullscreen adjustments */
+.ppt-viewer-container:fullscreen {
+    border-radius: 0;
+}
+
+.ppt-viewer-container:fullscreen .ppt-toolbar {
+    padding: 16px 24px;
+}
+
+.ppt-viewer-container:fullscreen .ppt-content {
+    height: calc(100vh - 60px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ppt-toolbar {
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .ppt-toolbar-center {
+        order: -1;
+        width: 100%;
+        text-align: left;
+    }
+
+    .ppt-title {
+        font-size: 14px;
+    }
+
+    .ppt-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .ppt-slide-input {
+        width: 40px;
+        height: 28px;
+    }
+
+    .ppt-note-panel {
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+}
+
+/* Dark mode support (if system supports) */
+@media (prefers-color-scheme: dark) {
+    .ppt-note-panel {
+        background: #1a1a2e;
+        border-color: #333;
+    }
+
+    .ppt-note-header,
+    .ppt-note-actions {
+        background: #0f0f23;
+        border-color: #333;
+    }
+
+    .ppt-note-header {
+        color: #e0e0e0;
+    }
+
+    .ppt-note-input {
+        background: #1a1a2e;
+        color: #e0e0e0;
+    }
+
+    .ppt-note-close {
+        color: #999;
+    }
+
+    .ppt-note-close:hover {
+        background: #333;
+        color: #e0e0e0;
+    }
+}

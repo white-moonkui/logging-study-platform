@@ -1,0 +1,97 @@
+# 测井专业智能培训系统 - Docker Compose 配置
+# 单机低并发部署
+
+version: '3.8'
+
+services:
+    # 主应用
+    app:
+        build: .
+        ports:
+            - '3000:3000'
+        environment:
+            - NODE_ENV=production
+            - MONGODB_URI=mongodb://mongo:27017/well_logging
+            - PYTHON_AI_SERVICE_URL=http://python-ai:8001/api/v1
+            - MILVUS_HOST=milvus
+        depends_on:
+            - mongo
+            - python-ai
+        volumes:
+            - ./uploads:/app/uploads
+        networks:
+            - app-network
+        restart: unless-stopped
+
+    # Python AI 服务
+    python-ai:
+        build: ./services/python
+        ports:
+            - '8001:8001'
+        environment:
+            - HOST=0.0.0.0
+            - PORT=8001
+            - MILVUS_HOST=milvus
+            - MILVUS_PORT=19530
+            - CUDA_VISIBLE_DEVICES=0 # 如果有GPU
+        volumes:
+            - ./uploads:/app/uploads
+            - ./data:/app/data
+        networks:
+            - app-network
+        restart: unless-stopped
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: 1
+                          capabilities: [gpu] # 启用GPU（如果可用）
+
+    # Milvus 向量数据库
+    milvus:
+        image: milvusdb/milvus:v2.3.0
+        container_name: milvus
+        command: ['milvus', 'run', 'standalone']
+        ports:
+            - '19530:19530'
+            - '9091:9091'
+        volumes:
+            - milvus-data:/var/lib/milvus
+        networks:
+            - app-network
+        restart: unless-stopped
+
+    # MongoDB
+    mongo:
+        image: mongo:7.0
+        container_name: mongo
+        ports:
+            - '27017:27017'
+        volumes:
+            - mongo-data:/data/db
+        networks:
+            - app-network
+        restart: unless-stopped
+
+    # Attu (Milvus 可视化管理工具，可选)
+    attu:
+        image: zilliz/attu:v2.3
+        container_name: attu
+        ports:
+            - '8000:3000'
+        environment:
+            - MILVUS_URL=milvus:19530
+        depends_on:
+            - milvus
+        networks:
+            - app-network
+        restart: unless-stopped
+
+networks:
+    app-network:
+        driver: bridge
+
+volumes:
+    milvus-data:
+    mongo-data:

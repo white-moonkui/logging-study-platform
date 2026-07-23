@@ -1,0 +1,15 @@
+# 全局忽略文件 - Prettier
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.min.js
+*.min.css
+*.bundle.js
+vendor/
+public/vendor/
+.cache/
+.parcel-cache/
+.turbo/

@@ -1,0 +1,69 @@
+{
+  "categories": [
+    {
+      "id": "basic",
+      "name": "基础知识",
+      "icon": "fa-book",
+      "count": 0
+    },
+    {
+      "id": "instrument",
+      "name": "仪器知识",
+      "icon": "fa-microchip",
+      "count": 0
+    },
+    {
+      "id": "operation",
+      "name": "现场作业",
+      "icon": "fa-hard-hat",
+      "count": 0
+    },
+    {
+      "id": "standard",
+      "name": "标准规范",
+      "icon": "fa-ruler-combined",
+      "count": 0
+    },
+    {
+      "id": "cases",
+      "name": "典型案例",
+      "icon": "fa-folder-open",
+      "count": 0
+    },
+    {
+      "id": "solutions",
+      "name": "解决方案",
+      "icon": "fa-lightbulb",
+      "count": 0
+    }
+  ],
+  "tags": [
+    {
+      "name": "测井原理",
+      "count": 45,
+      "color": "#2563eb"
+    },
+    {
+      "name": "电阻率",
+      "count": 32,
+      "color": "#3b82f6"
+    },
+    {
+      "name": "声波测井",
+      "count": 28,
+      "color": "#06b6d4"
+    },
+    {
+      "name": "伽马测井",
+      "count": 25,
+      "color": "#10b981"
+    },
+    {
+      "name": "中子测井",
+      "count": 22,
+      "color": "#f59e0b"
+    }
+  ],
+  "reviews": [],
+  "reviewHistory": []
+}

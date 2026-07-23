@@ -1,0 +1,116 @@
+<!-- 视频播放器组件 -->
+<div class="video-player-modal" id="videoPlayerModal" style="display: none">
+    <div class="modal-overlay" onclick="closeVideoPlayer()"></div>
+    <div class="modal-content video-modal">
+        <div class="modal-header">
+            <h3 id="videoTitle">视频播放</h3>
+            <button class="modal-close" onclick="closeVideoPlayer()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="videoPlayerContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script src="js/videoPlayer.js"></script>
+<script src="css/video-player.css"></script>
+
+<script>
+    // 视频播放器实例
+    let currentVideoPlayer = null;
+
+    // 打开视频播放器
+    function openVideoPlayer(fileId, title, src) {
+        const modal = document.getElementById('videoPlayerModal');
+        const container = document.getElementById('videoPlayerContainer');
+        const titleEl = document.getElementById('videoTitle');
+
+        titleEl.textContent = title;
+        modal.style.display = 'block';
+
+        // 创建播放器实例
+        currentVideoPlayer = new VideoPlayer('videoPlayerContainer', {
+            fileId: fileId,
+            src: src,
+            title: title,
+            knowledgeId: currentKnowledgeId, // 需要在页面中定义
+            autoSaveInterval: 5000,
+        });
+    }
+
+    // 关闭视频播放器
+    function closeVideoPlayer() {
+        const modal = document.getElementById('videoPlayerModal');
+        modal.style.display = 'none';
+
+        if (currentVideoPlayer) {
+            currentVideoPlayer.destroy();
+            currentVideoPlayer = null;
+        }
+    }
+
+    // 当前知识点ID（需要在页面加载时设置）
+    let currentKnowledgeId = null;
+</script>
+
+<style>
+    .video-player-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content.video-modal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 1000px;
+        background: var(--glass-bg-primary);
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        box-shadow: var(--glass-shadow-lg);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--glass-border-light);
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-muted);
+    }
+
+    .modal-close:hover {
+        color: var(--text-primary);
+    }
+
+    .modal-body {
+        padding: 0;
+    }
+</style>

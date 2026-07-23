@@ -1,0 +1,1286 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>知识库管理 - 测井专业智能培训系统</title>
+        <link
+            rel="stylesheet"
+            href="/vendor/font-awesome/css/all.min.css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="styles.css" />
+        <style>
+            /* ==================== 页面专用布局 ==================== */
+            .container {
+                max-width: var(--container-max-width);
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+                padding: 20px 24px;
+                background: var(--glass-bg);
+                backdrop-filter: var(--glass-blur);
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow);
+            }
+
+            .page-title {
+                font-size: 24px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .page-title i {
+                width: 48px;
+                height: 48px;
+                border-radius: var(--radius-sm);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, var(--info) 0%, var(--accent) 100%);
+                color: white;
+                font-size: 20px;
+            }
+
+            .search-section {
+                background: var(--glass-bg);
+                backdrop-filter: var(--glass-blur);
+                border-radius: var(--border-radius);
+                padding: 20px;
+                margin-bottom: 20px;
+                box-shadow: var(--shadow);
+            }
+
+            .search-row {
+                display: flex;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .search-box {
+                flex: 1;
+                min-width: 250px;
+                position: relative;
+            }
+
+            .search-box i {
+                position: absolute;
+                left: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-muted);
+            }
+
+            .search-box input,
+            select {
+                width: 100%;
+                padding: 12px 16px 12px 44px;
+                border: 1px solid var(--border-color);
+                border-radius: var(--border-radius);
+                font-size: 14px;
+            }
+
+            .search-box input {
+                padding-left: 44px;
+            }
+
+            select {
+                padding-left: 16px;
+                cursor: pointer;
+            }
+
+            /* 文件类型图标 */
+            .file-type-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 10px;
+            }
+
+            .file-type-icon.pdf {
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--danger);
+            }
+            .file-type-icon.doc {
+                background: rgba(59, 130, 246, 0.1);
+                color: #3b82f6;
+            }
+            .file-type-icon.xls {
+                background: rgba(16, 185, 129, 0.1);
+                color: var(--success);
+            }
+            .file-type-icon.txt {
+                background: rgba(100, 116, 139, 0.1);
+                color: var(--gray-500);
+            }
+            .file-type-icon.img {
+                background: rgba(139, 92, 246, 0.1);
+                color: var(--info);
+            }
+
+            /* 状态徽章 */
+            .status-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .status-badge.published {
+                background: rgba(16, 185, 129, 0.1);
+                color: var(--success);
+            }
+
+            .status-badge.draft {
+                background: rgba(245, 158, 11, 0.1);
+                color: var(--warning);
+            }
+
+            .status-badge.pending {
+                background: rgba(100, 116, 139, 0.1);
+                color: var(--gray-500);
+            }
+
+            /* 操作按钮 */
+            .action-btn {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                border: none;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 4px;
+            }
+
+            .action-btn.view {
+                background: rgba(14, 165, 233, 0.1);
+                color: var(--primary);
+            }
+            .action-btn.edit {
+                background: rgba(245, 158, 11, 0.1);
+                color: var(--warning);
+            }
+            .action-btn.delete {
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--danger);
+            }
+
+            .btn-sm {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            /* 模态框 */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: var(--z-modal);
+            }
+
+            .modal-overlay.show {
+                display: flex;
+            }
+
+            .modal {
+                background: var(--bg-primary);
+                border-radius: var(--border-radius);
+                width: 90%;
+                max-width: 600px;
+                max-height: 90vh;
+                overflow-y: auto;
+                animation: modalIn 0.3s ease;
+            }
+
+            @keyframes modalIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px 24px;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .modal-header h3 {
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .modal-close {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: none;
+                background: var(--bg-tertiary);
+                cursor: pointer;
+                font-size: 18px;
+            }
+
+            .modal-body {
+                padding: 24px;
+            }
+
+            .required {
+                color: var(--danger);
+            }
+
+            /* 上传区域 */
+            .upload-zone {
+                border: 2px dashed var(--border-color);
+                border-radius: var(--border-radius);
+                padding: 40px;
+                text-align: center;
+                cursor: pointer;
+                transition: all var(--transition);
+            }
+
+            .upload-zone:hover {
+                border-color: var(--primary);
+                background: rgba(14, 165, 233, 0.05);
+            }
+
+            .upload-zone i {
+                font-size: 48px;
+                color: var(--text-muted);
+                margin-bottom: 16px;
+            }
+
+            .upload-zone p {
+                color: var(--text-muted);
+                margin-bottom: 8px;
+            }
+
+            .upload-zone .hint {
+                font-size: 12px;
+                color: var(--text-muted);
+            }
+
+            .file-preview {
+                display: flex;
+                align-items: center;
+                padding: 12px;
+                background: var(--bg-secondary);
+                border-radius: var(--border-radius);
+                margin-top: 16px;
+            }
+
+            .file-preview i {
+                font-size: 24px;
+                margin-right: 12px;
+            }
+
+            .file-info {
+                flex: 1;
+            }
+
+            .file-info .name {
+                font-weight: 500;
+            }
+
+            .file-info .size {
+                font-size: 12px;
+                color: var(--text-muted);
+            }
+
+            .file-remove {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                border: none;
+                background: var(--danger);
+                color: white;
+                cursor: pointer;
+            }
+
+            /* Toast 通知 */
+            .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                border-radius: var(--border-radius);
+                color: white;
+                font-weight: 500;
+                z-index: var(--z-tooltip);
+                animation: slideIn 0.3s ease;
+            }
+
+            .toast.success {
+                background: var(--success);
+            }
+            .toast.error {
+                background: var(--danger);
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(100px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            /* 加载状态 */
+            .loading {
+                text-align: center;
+                padding: 40px;
+                color: var(--text-muted);
+            }
+
+            /* 分页 */
+            .pagination {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px 20px;
+                background: var(--bg-secondary);
+            }
+
+            /* 批量导入样式 */
+            .import-instructions {
+                background: var(--bg-secondary);
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+
+            .import-instructions h4 {
+                font-size: 14px;
+                margin-bottom: 12px;
+                color: var(--text-primary);
+            }
+
+            .import-instructions ul {
+                margin: 0;
+                padding-left: 20px;
+                font-size: 13px;
+                color: var(--text-secondary);
+            }
+
+            .import-instructions li {
+                margin-bottom: 6px;
+            }
+
+            .import-options {
+                display: flex;
+                gap: 20px;
+                margin-bottom: 16px;
+            }
+
+            .radio-option {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+
+            .radio-option input {
+                accent-color: var(--primary);
+            }
+
+            .import-result {
+                margin-top: 16px;
+                padding: 16px;
+                border-radius: 8px;
+            }
+
+            .import-result.success {
+                background: #d1fae5;
+                color: #065f46;
+            }
+
+            .import-result.warning {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .import-summary h4 {
+                margin-bottom: 8px;
+            }
+
+            .import-summary ul {
+                margin-top: 12px;
+                padding-left: 20px;
+                font-size: 13px;
+            }
+
+            .error-list {
+                color: var(--danger);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-database"></i>
+                    知识库管理
+                </h1>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="exportKnowledge()">
+                        <i class="fas fa-file-export"></i> 导出
+                    </button>
+                    <button class="btn btn-secondary" onclick="showImportModal()">
+                        <i class="fas fa-file-import"></i> 批量导入
+                    </button>
+                    <button class="btn btn-primary" onclick="showAddModal()">
+                        <i class="fas fa-plus"></i> 新增知识
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <div class="search-row">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="搜索知识标题、内容、标签..."
+                            onkeyup="filterKnowledge()"
+                        />
+                    </div>
+                    <select id="categoryFilter" onchange="filterKnowledge()" style="width: 200px">
+                        <option value="">全部分类</option>
+                        <option value="basic">基础知识</option>
+                        <option value="instrument">仪器知识</option>
+                        <option value="operation">现场作业</option>
+                        <option value="standard">标准规范</option>
+                        <option value="cases">典型案例</option>
+                        <option value="solutions">解决方案</option>
+                    </select>
+                    <select id="statusFilter" onchange="filterKnowledge()" style="width: 150px">
+                        <option value="">全部状态</option>
+                        <option value="published">已发布</option>
+                        <option value="draft">草稿</option>
+                        <option value="pending">待审核</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>知识条目</th>
+                            <th>分类</th>
+                            <th>标签</th>
+                            <th>状态</th>
+                            <th>创建者</th>
+                            <th>更新时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="knowledgeTableBody">
+                        <tr>
+                            <td colspan="7" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i> 加载中...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <span>共 <span id="totalCount">0</span> 条记录</span>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary btn-sm" onclick="loadKnowledge()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="knowledgeModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="modalTitle">
+                        <i class="fas fa-plus-circle" style="color: var(--primary)"></i> 新增知识
+                    </h3>
+                    <button class="modal-close" onclick="closeModal('knowledgeModal')">
+                        &times;
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="knowledgeForm" onsubmit="saveKnowledge(event)">
+                        <input type="hidden" id="editId" />
+
+                        <div class="form-group">
+                            <label>标题 <span class="required">*</span></label>
+                            <input
+                                type="text"
+                                id="formTitle"
+                                required
+                                placeholder="请输入知识标题"
+                            />
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>分类 <span class="required">*</span></label>
+                                <select id="formCategory" required>
+                                    <option value="">请选择分类</option>
+                                    <option value="basic">基础知识</option>
+                                    <option value="instrument">仪器知识</option>
+                                    <option value="operation">现场作业</option>
+                                    <option value="standard">标准规范</option>
+                                    <option value="cases">典型案例</option>
+                                    <option value="solutions">解决方案</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>状态</label>
+                                <select id="formStatus">
+                                    <option value="published">已发布</option>
+                                    <option value="draft">草稿</option>
+                                    <option value="pending">待审核</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>描述</label>
+                            <textarea id="formDescription" placeholder="请输入知识描述"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>标签（用逗号分隔）</label>
+                            <input
+                                type="text"
+                                id="formKeywords"
+                                placeholder="例如: 测井,电阻率,原理"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label>上传附件</label>
+                            <div
+                                class="upload-zone"
+                                onclick="document.getElementById('formFile').click()"
+                            >
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>点击选择文件或拖拽到此处</p>
+                                <span class="hint">支持 PDF、Word、Excel、TXT、图片</span>
+                            </div>
+                            <input
+                                type="file"
+                                id="formFile"
+                                style="display: none"
+                                onchange="handleFileSelect(this)"
+                            />
+                            <div id="filePreview" style="display: none"></div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                onclick="closeModal('knowledgeModal')"
+                            >
+                                取消
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量导入弹窗 -->
+        <div class="modal-overlay" id="importModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>
+                        <i class="fas fa-file-import" style="color: var(--success)"></i>
+                        批量导入知识
+                    </h3>
+                    <button class="modal-close" onclick="closeModal('importModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="import-instructions">
+                        <h4><i class="fas fa-info-circle"></i> 导入说明</h4>
+                        <ul>
+                            <li>支持 JSON 格式批量导入</li>
+                            <li>每条记录需包含: title(标题), category(分类)</li>
+                            <li>可选字段: description(描述), keywords(关键词数组)</li>
+                        </ul>
+                    </div>
+
+                    <div class="form-group">
+                        <label>选择导入方式</label>
+                        <div class="import-options">
+                            <label class="radio-option">
+                                <input
+                                    type="radio"
+                                    name="importType"
+                                    value="json"
+                                    checked
+                                    onchange="toggleImportMode()"
+                                />
+                                <span>JSON 文件</span>
+                            </label>
+                            <label class="radio-option">
+                                <input
+                                    type="radio"
+                                    name="importType"
+                                    value="manual"
+                                    onchange="toggleImportMode()"
+                                />
+                                <span>手动输入</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="jsonImportMode">
+                        <div
+                            class="upload-zone"
+                            onclick="document.getElementById('importFile').click()"
+                        >
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>点击选择 JSON 文件或拖拽到此处</p>
+                            <span class="hint">文件大小不超过 5MB</span>
+                        </div>
+                        <input
+                            type="file"
+                            id="importFile"
+                            style="display: none"
+                            accept=".json"
+                            onchange="handleImportFile(this)"
+                        />
+                        <div id="importFilePreview" style="display: none"></div>
+                    </div>
+
+                    <div id="manualImportMode" style="display: none">
+                        <div class="form-group">
+                            <label>JSON 数据 <span class="required">*</span></label>
+                            <textarea
+                                id="importData"
+                                class="form-textarea"
+                                rows="10"
+                                placeholder='[
+  {
+    "title": "知识标题",
+    "category": "basic",
+    "description": "知识描述",
+    "keywords": ["关键词1", "关键词2"]
+  }
+]'
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div class="import-result" id="importResult" style="display: none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="closeModal('importModal')"
+                    >
+                        取消
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="executeImport()">
+                        <i class="fas fa-upload"></i> 开始导入
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const API_BASE = 'http://localhost:3000/api';
+            let allKnowledge = [];
+            let filteredKnowledge = [];
+            let selectedFile = null;
+            let isLoading = false;
+
+            document.addEventListener('DOMContentLoaded', () => {
+                loadKnowledge();
+            });
+
+            async function loadKnowledge() {
+                if (isLoading) return;
+                isLoading = true;
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                try {
+                    showLoadingState();
+
+                    const response = await fetch(`${API_BASE}/knowledge-management/items`, {
+                        signal: controller.signal,
+                    });
+                    const data = await response.json();
+
+                    if (data.success && data.items) {
+                        allKnowledge = data.items;
+                        filteredKnowledge = [...allKnowledge];
+                        renderKnowledgeTable();
+                    } else {
+                        const kbResponse = await fetch(`${API_BASE}/knowledge`);
+                        const kbData = await kbResponse.json();
+                        if (kbData.knowledge) {
+                            allKnowledge = kbData.knowledge.map(k => ({
+                                id: k._id,
+                                title: k.title,
+                                category: k.category,
+                                keywords: k.keywords || [],
+                                status: k.isPublished ? 'published' : 'draft',
+                                description: k.content,
+                                creator: k.createdBy?.username || '系统',
+                                updatedAt: k.updatedAt,
+                            }));
+                            filteredKnowledge = [...allKnowledge];
+                            renderKnowledgeTable();
+                        } else {
+                            showMockData();
+                        }
+                    }
+                } catch (error) {
+                    console.error('加载知识失败:', error);
+                    showMockData();
+                } finally {
+                    clearTimeout(timeoutId);
+                    isLoading = false;
+                }
+            }
+
+            function showLoadingState() {
+                document.getElementById('knowledgeTableBody').innerHTML = `
+                <tr>
+                    <td colspan="7" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> 加载中...
+                    </td>
+                </tr>
+            `;
+            }
+
+            function showMockData() {
+                const mockData = [
+                    {
+                        id: '1',
+                        title: '示波器基本操作指南',
+                        category: 'instrument',
+                        keywords: ['示波器', '基础'],
+                        status: 'published',
+                        description: '介绍示波器的基本操作方法',
+                        creator: '系统',
+                        updatedAt: new Date().toISOString(),
+                    },
+                    {
+                        id: '2',
+                        title: '实验室安全规范',
+                        category: 'standard',
+                        keywords: ['安全', '规范'],
+                        status: 'published',
+                        description: '实验室操作安全规范',
+                        creator: '系统',
+                        updatedAt: new Date().toISOString(),
+                    },
+                    {
+                        id: '3',
+                        title: '数据采集常见问题',
+                        category: 'cases',
+                        keywords: ['故障', '排查'],
+                        status: 'draft',
+                        description: '数据采集过程中常见问题及解决方法',
+                        creator: '系统',
+                        updatedAt: new Date().toISOString(),
+                    },
+                ];
+                allKnowledge = mockData;
+                filteredKnowledge = [...allKnowledge];
+                renderKnowledgeTable();
+                showToast('已加载演示数据', 'info');
+            }
+
+            function showEmptyState() {
+                document.getElementById('knowledgeTableBody').innerHTML = `
+                <tr>
+                    <td colspan="7" class="loading">
+                        暂无数据 <button class="btn btn-primary btn-sm" onclick="showAddModal()">新增知识</button>
+                    </td>
+                </tr>
+            `;
+                document.getElementById('totalCount').textContent = '0';
+            }
+
+            function renderKnowledgeTable() {
+                const tbody = document.getElementById('knowledgeTableBody');
+
+                if (filteredKnowledge.length === 0) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="loading">
+                            暂无数据 <button class="btn btn-primary btn-sm" onclick="showAddModal()">新增知识</button>
+                        </td>
+                    </tr>
+                `;
+                    document.getElementById('totalCount').textContent = '0';
+                    return;
+                }
+
+                const categoryLabels = {
+                    basic: '基础知识',
+                    instrument: '仪器知识',
+                    operation: '现场作业',
+                    standard: '标准规范',
+                    cases: '典型案例',
+                    solutions: '解决方案',
+                };
+
+                tbody.innerHTML = filteredKnowledge
+                    .map(
+                        item => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-file-alt file-type-icon doc"></i>
+                            <div>
+                                <strong>${item.title}</strong>
+                                ${item.description ? `<p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${(item.description || '').substring(0, 50)}...</p>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td>${categoryLabels[item.category] || item.category}</td>
+                    <td>${(item.keywords || []).map(k => `<span class="status-badge pending" style="margin-right: 4px;">${k}</span>`).join('')}</td>
+                    <td><span class="status-badge ${item.status}">${item.status === 'published' ? '已发布' : item.status === 'draft' ? '草稿' : '待审核'}</span></td>
+                    <td>${item.creator || '系统'}</td>
+                    <td>${item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('zh-CN') : '-'}</td>
+                    <td>
+                        <button class="action-btn view" title="查看" onclick="viewKnowledge('${item.id}')"><i class="fas fa-eye"></i></button>
+                        <button class="action-btn edit" title="编辑" onclick="editKnowledge('${item.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete" title="删除" onclick="deleteKnowledge('${item.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `
+                    )
+                    .join('');
+
+                document.getElementById('totalCount').textContent = filteredKnowledge.length;
+            }
+
+            function filterKnowledge() {
+                const search = document.getElementById('searchInput').value.toLowerCase();
+                const category = document.getElementById('categoryFilter').value;
+                const status = document.getElementById('statusFilter').value;
+
+                filteredKnowledge = allKnowledge.filter(item => {
+                    const matchSearch =
+                        !search ||
+                        item.title.toLowerCase().includes(search) ||
+                        (item.description || '').toLowerCase().includes(search) ||
+                        (item.keywords || []).some(k => k.toLowerCase().includes(search));
+                    const matchCategory = !category || item.category === category;
+                    const matchStatus = !status || item.status === status;
+                    return matchSearch && matchCategory && matchStatus;
+                });
+
+                renderKnowledgeTable();
+            }
+
+            function showAddModal() {
+                document.getElementById('modalTitle').innerHTML =
+                    '<i class="fas fa-plus-circle" style="color: var(--primary);"></i> 新增知识';
+                document.getElementById('knowledgeForm').reset();
+                document.getElementById('editId').value = '';
+                selectedFile = null;
+                document.getElementById('filePreview').style.display = 'none';
+                document.getElementById('knowledgeModal').classList.add('show');
+            }
+
+            function editKnowledge(id) {
+                const item = allKnowledge.find(k => k.id === id);
+                if (!item) return;
+
+                document.getElementById('modalTitle').innerHTML =
+                    '<i class="fas fa-edit" style="color: var(--warning);"></i> 编辑知识';
+                document.getElementById('editId').value = id;
+                document.getElementById('formTitle').value = item.title;
+                document.getElementById('formCategory').value = item.category;
+                document.getElementById('formStatus').value = item.status || 'draft';
+                document.getElementById('formDescription').value = item.description || '';
+                document.getElementById('formKeywords').value = (item.keywords || []).join(', ');
+
+                selectedFile = null;
+                document.getElementById('filePreview').style.display = 'none';
+
+                document.getElementById('knowledgeModal').classList.add('show');
+            }
+
+            async function saveKnowledge(event) {
+                event.preventDefault();
+
+                const id = document.getElementById('editId').value;
+                const formData = new FormData();
+
+                formData.append('title', document.getElementById('formTitle').value);
+                formData.append('category', document.getElementById('formCategory').value);
+                formData.append('description', document.getElementById('formDescription').value);
+                formData.append('keywords', document.getElementById('formKeywords').value);
+
+                const status = document.getElementById('formStatus').value;
+                formData.append('status', status);
+
+                if (selectedFile) {
+                    formData.append('file', selectedFile);
+                }
+
+                try {
+                    const url = id
+                        ? `${API_BASE}/knowledge-management/items/${id}`
+                        : `${API_BASE}/knowledge-management/upload`;
+                    const method = id ? 'PUT' : 'POST';
+
+                    const response = await fetch(url, {
+                        method: method,
+                        body: formData,
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success || response.ok) {
+                        showToast(id ? '知识更新成功' : '知识创建成功', 'success');
+                        closeModal('knowledgeModal');
+                        loadKnowledge();
+                    } else {
+                        showToast(result.error || '操作失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('保存知识失败:', error);
+                    showToast('保存失败: ' + error.message, 'error');
+                }
+            }
+
+            async function deleteKnowledge(id) {
+                if (!confirm('确定要删除该知识吗？')) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/knowledge-management/items/${id}`, {
+                        method: 'DELETE',
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showToast('删除成功', 'success');
+                        loadKnowledge();
+                    } else {
+                        showToast(result.error || '删除失败', 'error');
+                    }
+                } catch (error) {
+                    showToast('删除失败: ' + error.message, 'error');
+                }
+            }
+
+            function viewKnowledge(id) {
+                const item = allKnowledge.find(k => k.id === id);
+                if (!item) return;
+
+                alert(
+                    `知识详情:\n标题: ${item.title}\n分类: ${item.category}\n描述: ${item.description || '无'}`
+                );
+            }
+
+            function handleFileSelect(input) {
+                const file = input.files[0];
+                if (!file) return;
+
+                selectedFile = file;
+
+                const preview = document.getElementById('filePreview');
+                const icon = file.type.includes('pdf')
+                    ? 'fa-file-pdf'
+                    : file.type.includes('word')
+                      ? 'fa-file-word'
+                      : file.type.includes('excel')
+                        ? 'fa-file-excel'
+                        : file.type.includes('image')
+                          ? 'fa-file-image'
+                          : 'fa-file-alt';
+
+                preview.innerHTML = `
+                <div class="file-preview">
+                    <i class="fas ${icon}" style="font-size: 24px; color: var(--primary); margin-right: 12px;"></i>
+                    <div class="file-info">
+                        <div class="name">${file.name}</div>
+                        <div class="size">${(file.size / 1024).toFixed(1)} KB</div>
+                    </div>
+                    <button type="button" class="file-remove" onclick="removeFile()">&times;</button>
+                </div>
+            `;
+                preview.style.display = 'block';
+            }
+
+            function removeFile() {
+                selectedFile = null;
+                document.getElementById('formFile').value = '';
+                document.getElementById('filePreview').style.display = 'none';
+            }
+
+            function closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('show');
+            }
+
+            function exportKnowledge() {
+                if (allKnowledge.length === 0) {
+                    showToast('没有可导出的数据', 'warning');
+                    return;
+                }
+
+                // Use existing modal system
+                const modalHtml = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-file-export" style="color: var(--primary);"></i> 导出知识数据</h3>
+                        <button class="modal-close" onclick="closeModal('exportModal')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 16px;">共 <strong>${allKnowledge.length}</strong> 条数据</p>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-primary" onclick="executeExport('json')">
+                                <i class="fas fa-file-code"></i> 导出JSON
+                            </button>
+                            <button class="btn btn-secondary" onclick="executeExport('csv')">
+                                <i class="fas fa-file-csv"></i> 导出CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                let overlay = document.getElementById('exportModal');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.className = 'modal-overlay';
+                    overlay.id = 'exportModal';
+                    document.body.appendChild(overlay);
+                }
+                overlay.innerHTML = modalHtml;
+                overlay.classList.add('show');
+            }
+
+            function executeExport(format) {
+                let content, filename, mimeType;
+
+                if (format === 'json') {
+                    content = JSON.stringify(allKnowledge, null, 2);
+                    filename = `knowledge_export_${new Date().toISOString().slice(0, 10)}.json`;
+                    mimeType = 'application/json';
+                } else {
+                    const headers = [
+                        'ID',
+                        '标题',
+                        '分类',
+                        '关键词',
+                        '状态',
+                        '创建者',
+                        '更新时间',
+                        '描述',
+                    ];
+                    const rows = allKnowledge.map(item => [
+                        item.id,
+                        item.title,
+                        item.category,
+                        (item.keywords || []).join(','),
+                        item.status,
+                        item.creator,
+                        item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('zh-CN') : '',
+                        (item.description || '').replace(/,/g, '，'),
+                    ]);
+                    content = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+                    filename = `knowledge_export_${new Date().toISOString().slice(0, 10)}.csv`;
+                    mimeType = 'text/csv';
+                }
+
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                closeModal('exportModal');
+                showToast(`成功导出 ${allKnowledge.length} 条数据`, 'success');
+            }
+
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            // 批量导入功能
+            let importData = null;
+
+            function showImportModal() {
+                document.getElementById('importModal').classList.add('show');
+                document.getElementById('importResult').style.display = 'none';
+                importData = null;
+            }
+
+            function toggleImportMode() {
+                const importType = document.querySelector('input[name="importType"]:checked').value;
+                document.getElementById('jsonImportMode').style.display =
+                    importType === 'json' ? 'block' : 'none';
+                document.getElementById('manualImportMode').style.display =
+                    importType === 'manual' ? 'block' : 'none';
+            }
+
+            function handleImportFile(input) {
+                const file = input.files[0];
+                if (!file) return;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('文件大小不能超过 5MB', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        importData = JSON.parse(e.target.result);
+                        if (!Array.isArray(importData)) {
+                            throw new Error('JSON 必须是数组格式');
+                        }
+
+                        document.getElementById('importFilePreview').innerHTML = `
+                        <div class="file-preview" style="padding: 12px; background: #d1fae5; border-radius: 8px; margin-top: 12px;">
+                            <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                            <span>已加载 ${importData.length} 条记录</span>
+                        </div>
+                    `;
+                        document.getElementById('importFilePreview').style.display = 'block';
+                    } catch (error) {
+                        showToast('JSON 解析失败: ' + error.message, 'error');
+                        importData = null;
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            async function executeImport() {
+                const importType = document.querySelector('input[name="importType"]:checked').value;
+
+                if (importType === 'json') {
+                    if (!importData || importData.length === 0) {
+                        showToast('请先选择 JSON 文件', 'error');
+                        return;
+                    }
+                } else {
+                    try {
+                        importData = JSON.parse(document.getElementById('importData').value);
+                        if (!Array.isArray(importData)) {
+                            throw new Error('JSON 必须是数组格式');
+                        }
+                    } catch (error) {
+                        showToast('JSON 解析失败: ' + error.message, 'error');
+                        return;
+                    }
+                }
+
+                let successCount = 0;
+                let failCount = 0;
+                const errors = [];
+
+                for (const item of importData) {
+                    if (!item.title || !item.category) {
+                        failCount++;
+                        errors.push(`缺少必填字段: ${item.title || '未命名'}`);
+                        continue;
+                    }
+
+                    try {
+                        const response = await fetch(`${API_BASE}/knowledge-management/items`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                title: item.title,
+                                category: item.category,
+                                description: item.description || '',
+                                keywords: item.keywords || [],
+                                content: item.content || '',
+                                status: item.status || 'draft',
+                            }),
+                        });
+
+                        if (response.ok) {
+                            successCount++;
+                        } else {
+                            failCount++;
+                            errors.push(`导入失败: ${item.title}`);
+                        }
+                    } catch (error) {
+                        failCount++;
+                        errors.push(`网络错误: ${item.title}`);
+                    }
+                }
+
+                // 显示结果
+                const resultDiv = document.getElementById('importResult');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                <div class="import-summary ${failCount === 0 ? 'success' : 'warning'}">
+                    <h4><i class="fas ${failCount === 0 ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i> 导入完成</h4>
+                    <p>成功: ${successCount} 条 | 失败: ${failCount} 条</p>
+                    ${errors.length > 0 ? `<ul class="error-list">${errors.map(e => `<li>${e}</li>`).join('')}</ul>` : ''}
+                </div>
+            `;
+
+                if (successCount > 0) {
+                    loadKnowledge();
+                }
+
+                showToast(
+                    `导入完成: 成功 ${successCount} 条, 失败 ${failCount} 条`,
+                    failCount === 0 ? 'success' : 'warning'
+                );
+            }
+        </script>
+    </body>
+</html>

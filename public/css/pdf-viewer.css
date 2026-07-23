@@ -1,0 +1,235 @@
+/* ==================== PDF阅读器样式 ==================== */
+
+.pdf-viewer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--glass-bg-primary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--glass-shadow);
+    border: 1px solid var(--glass-border-light);
+}
+
+/* 工具栏 */
+.pdf-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--glass-bg-secondary);
+    border-bottom: 1px solid var(--glass-border-light);
+    gap: 16px;
+}
+
+.pdf-toolbar-left,
+.pdf-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pdf-toolbar-center {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+}
+
+.pdf-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pdf-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--glass-bg-primary);
+    color: var(--text-primary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    border: 1px solid var(--glass-border-light);
+}
+
+.pdf-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.pdf-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 页码信息 */
+.pdf-page-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.pdf-page-input {
+    width: 50px;
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: var(--glass-bg-primary);
+    color: var(--text-primary);
+    text-align: center;
+    font-size: 14px;
+}
+
+.pdf-page-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* 缩放级别 */
+.pdf-zoom-level {
+    font-size: 13px;
+    color: var(--text-secondary);
+    min-width: 50px;
+    text-align: center;
+}
+
+/* 内容区域 */
+.pdf-content {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px;
+    background: var(--gray-100);
+    position: relative;
+}
+
+.pdf-canvas {
+    background: white;
+    box-shadow: var(--shadow-lg);
+    border-radius: 4px;
+}
+
+/* 加载动画 */
+.pdf-loading {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.pdf-loading p {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* 笔记面板 */
+.pdf-note-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--glass-bg-primary);
+    backdrop-filter: var(--backdrop-blur);
+    border-top: 1px solid var(--glass-border-light);
+    padding: 16px 20px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-note-panel.hidden {
+    display: none;
+}
+
+.pdf-note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pdf-note-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+}
+
+.pdf-note-close:hover {
+    color: var(--text-primary);
+}
+
+.pdf-note-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--glass-bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.pdf-note-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.pdf-note-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+/* 全屏样式 */
+.pdf-viewer-container:fullscreen {
+    border-radius: 0;
+}
+
+.pdf-viewer-container:fullscreen .pdf-content {
+    height: 100vh;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .pdf-toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .pdf-toolbar-center {
+        order: -1;
+        width: 100%;
+        text-align: left;
+    }
+
+    .pdf-title {
+        font-size: 14px;
+    }
+
+    .pdf-content {
+        padding: 12px;
+    }
+}

@@ -1,0 +1,1912 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>动态页面与资料管理 - 测井专业智能培训系统</title>
+        <link
+            rel="stylesheet"
+            href="/vendor/font-awesome/css/all.min.css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="styles.css" />
+        <style>
+            /* ==================== Page-Specific Styles ==================== */
+            .container {
+                max-width: 100%;
+                margin: 0;
+                padding: 15px;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .header {
+                background: white;
+                padding: 15px 25px;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow);
+                margin-bottom: 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-shrink: 0;
+            }
+
+            .header h1 {
+                font-size: 20px;
+                color: var(--gray-800);
+            }
+
+            .header-actions {
+                display: flex;
+                gap: 10px;
+            }
+
+            .main-content {
+                display: flex;
+                gap: 15px;
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            .left-panel {
+                width: 45%;
+                background: white;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .right-panel {
+                width: 55%;
+                background: white;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .panel-header {
+                padding: 15px 20px;
+                border-bottom: 1px solid var(--gray-200);
+                font-weight: 600;
+                color: var(--gray-700);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-shrink: 0;
+            }
+
+            .panel-content {
+                flex: 1;
+                overflow-y: auto;
+                padding: 15px;
+            }
+
+            .materials-zone {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .materials-tabs {
+                display: flex;
+                border-bottom: 1px solid var(--gray-200);
+                padding: 0 15px;
+                flex-shrink: 0;
+            }
+
+            .materials-tab {
+                padding: 12px 20px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--gray-500);
+                border-bottom: 2px solid transparent;
+                transition: var(--transition);
+            }
+
+            .materials-tab.active {
+                color: var(--primary);
+                border-bottom-color: var(--primary);
+            }
+
+            .materials-tab:hover {
+                color: var(--gray-700);
+            }
+
+            .category-group {
+                background: white;
+                border-radius: 12px;
+                margin-bottom: 15px;
+                border: 2px solid var(--gray-200);
+                overflow: hidden;
+            }
+
+            .category-group:hover {
+                border-color: var(--primary);
+            }
+
+            .category-group-header {
+                background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+                padding: 12px 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid var(--gray-200);
+                cursor: pointer;
+            }
+
+            .category-group-header .category-title {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 600;
+                color: var(--gray-800);
+            }
+
+            .category-group-header .category-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: var(--primary);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .category-group-header .category-actions {
+                display: flex;
+                gap: 8px;
+            }
+
+            .category-group-header .category-actions button {
+                width: 28px;
+                height: 28px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0.7;
+                transition: var(--transition);
+            }
+
+            .category-group-header .category-actions button:hover {
+                opacity: 1;
+            }
+
+            .category-group-header .category-actions .edit-btn {
+                background: var(--warning);
+                color: white;
+            }
+
+            .category-group-header .category-actions .delete-btn {
+                background: var(--danger);
+                color: white;
+            }
+
+            .category-group-header .category-actions .add-page-btn {
+                background: var(--success);
+                color: white;
+            }
+
+            .category-group-content {
+                padding: 15px;
+            }
+
+            .category-group-pages {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 12px;
+            }
+
+            .page-card-in-group {
+                background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+                border-radius: 10px;
+                padding: 14px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative;
+                border: 1px solid var(--gray-200);
+            }
+
+            .page-card-in-group:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-lg);
+                border-color: var(--primary);
+            }
+
+            .page-card-in-group.selected {
+                border-color: var(--primary);
+                background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+            }
+
+            .page-card-in-group .page-type-badge {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                padding: 3px 8px;
+                border-radius: 12px;
+                font-size: 10px;
+                font-weight: 600;
+                color: white;
+                text-transform: uppercase;
+            }
+
+            .page-card-in-group .page-type-badge.video { background: #667eea; }
+            .page-card-in-group .page-type-badge.pdf { background: #f5576c; }
+            .page-card-in-group .page-type-badge.ppt { background: #4facfe; }
+            .page-card-in-group .page-type-badge.document { background: var(--success); }
+            .page-card-in-group .page-type-badge.text { background: var(--info); }
+            .page-card-in-group .page-type-badge.quiz { background: #db2777; }
+
+            .page-card-in-group .page-actions {
+                position: absolute;
+                top: 8px;
+                left: 8px;
+                display: flex;
+                gap: 4px;
+                opacity: 0;
+                transition: var(--transition);
+            }
+
+            .page-card-in-group:hover .page-actions {
+                opacity: 1;
+            }
+
+            .page-card-in-group .page-actions button {
+                width: 22px;
+                height: 22px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .page-card-in-group .page-actions .edit-btn {
+                background: var(--warning);
+                color: white;
+            }
+
+            .page-card-in-group .page-actions .delete-btn {
+                background: var(--danger);
+                color: white;
+            }
+
+            .page-card-in-group .page-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                color: white;
+                margin-bottom: 8px;
+            }
+
+            .page-card-in-group.video .page-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            .page-card-in-group.pdf .page-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+            .page-card-in-group.ppt .page-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+            .page-card-in-group.document .page-icon { background: linear-gradient(135deg, var(--success) 0%, #34d399 100%); }
+            .page-card-in-group.text .page-icon { background: linear-gradient(135deg, var(--info) 0%, #a78bfa 100%); }
+            .page-card-in-group.quiz .page-icon { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); }
+
+            .page-card-in-group .page-title {
+                font-weight: 600;
+                color: var(--gray-800);
+                font-size: 14px;
+                margin-bottom: 4px;
+                padding-right: 50px;
+            }
+
+            .page-card-in-group .page-status {
+                font-size: 11px;
+                color: var(--gray-500);
+            }
+
+            .page-card-in-group .page-status.published { color: var(--success); }
+            .page-card-in-group .page-status.draft { color: var(--warning); }
+
+            .add-page-card {
+                background: transparent;
+                border: 2px dashed var(--gray-300);
+                border-radius: 10px;
+                padding: 20px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100px;
+            }
+
+            .add-page-card:hover {
+                border-color: var(--primary);
+                background: var(--gray-50);
+                color: var(--primary);
+            }
+
+            .add-page-card i {
+                font-size: 24px;
+                margin-bottom: 5px;
+            }
+
+            .add-page-card span {
+                font-size: 12px;
+            }
+
+            .add-module-section {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 2px solid var(--gray-200);
+            }
+
+            .add-module-btn {
+                width: 100%;
+                padding: 12px;
+                border: 2px dashed var(--gray-300);
+                border-radius: 10px;
+                background: transparent;
+                cursor: pointer;
+                font-size: 14px;
+                color: var(--gray-500);
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .add-module-btn:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+                background: var(--gray-50);
+            }
+
+            .drop-zone {
+                flex: 1;
+                overflow-y: auto;
+                padding: 15px;
+                background: var(--gray-50);
+                margin: 15px;
+                border-radius: 12px;
+                border: 2px dashed var(--gray-300);
+                transition: var(--transition);
+            }
+
+            .drop-zone.drag-over {
+                border-color: var(--primary);
+                background: #dbeafe;
+            }
+
+            .drop-zone-empty {
+                text-align: center;
+                padding: 60px 20px;
+                color: var(--gray-400);
+            }
+
+            .drop-zone-empty i {
+                font-size: 48px;
+                margin-bottom: 15px;
+                color: var(--gray-300);
+            }
+
+            .material-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .material-item {
+                background: white;
+                border-radius: 10px;
+                padding: 12px 15px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                box-shadow: var(--shadow);
+                cursor: grab;
+                transition: var(--transition);
+            }
+
+            .material-item:hover {
+                transform: translateX(5px);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .material-item.dragging {
+                opacity: 0.5;
+            }
+
+            .material-item .drag-handle {
+                color: var(--gray-300);
+                cursor: grab;
+            }
+
+            .material-item .material-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                color: white;
+            }
+
+            .material-item .material-icon.video {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+
+            .material-item .material-icon.pdf {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            }
+
+            .material-item .material-icon.ppt {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            }
+
+            .material-item .material-info {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .material-item .material-title {
+                font-weight: 500;
+                color: var(--gray-800);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .material-item .material-meta {
+                font-size: 12px;
+                color: var(--gray-500);
+            }
+
+            .material-item .material-actions {
+                display: flex;
+                gap: 5px;
+                opacity: 0;
+                transition: var(--transition);
+            }
+
+            .material-item:hover .material-actions {
+                opacity: 1;
+            }
+
+            .material-item .material-actions button {
+                width: 28px;
+                height: 28px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .material-item .material-actions .play-btn {
+                background: var(--success);
+                color: white;
+            }
+
+            .material-item .material-actions .delete-btn {
+                background: var(--danger);
+                color: white;
+            }
+
+            .material-list.sortable .material-item {
+                cursor: grab;
+            }
+
+            .selected-info {
+                background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+                padding: 15px 20px;
+                border-radius: 10px;
+                margin-bottom: 15px;
+                border-left: 4px solid var(--primary);
+            }
+
+            .selected-info h3 {
+                font-size: 16px;
+                color: var(--gray-800);
+                margin-bottom: 5px;
+            }
+
+            .selected-info .path {
+                font-size: 13px;
+                color: var(--gray-500);
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 40px 20px;
+                color: var(--gray-400);
+            }
+
+            .empty-state i {
+                font-size: 36px;
+                margin-bottom: 10px;
+                color: var(--gray-300);
+            }
+
+            .file-upload-area {
+                border: 2px dashed var(--gray-300);
+                border-radius: 10px;
+                padding: 20px;
+                text-align: center;
+                cursor: pointer;
+                transition: var(--transition);
+                margin-top: 15px;
+            }
+
+            .file-upload-area:hover {
+                border-color: var(--primary);
+                background: var(--gray-50);
+            }
+
+            .file-upload-area i {
+                font-size: 32px;
+                color: var(--gray-400);
+                margin-bottom: 10px;
+            }
+
+            .file-upload-area p {
+                font-size: 13px;
+                color: var(--gray-500);
+            }
+
+            .toast {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                background: var(--gray-800);
+                color: white;
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 2000;
+                animation: slideIn 0.3s ease;
+            }
+
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+
+            .toast.success { background: var(--success); }
+            .toast.error { background: var(--danger); }
+
+            /* Shared component styles not in styles.css */
+            .modal-overlay {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            }
+
+            .modal-overlay.active { display: flex; }
+
+            .modal {
+                background: white;
+                border-radius: var(--radius-lg);
+                width: 90%;
+                max-width: 500px;
+                max-height: 90vh;
+                overflow-y: auto;
+                animation: slideUp 0.3s ease;
+            }
+
+            @keyframes slideUp {
+                from { transform: translateY(20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+
+            .modal-header {
+                padding: 20px;
+                border-bottom: 1px solid var(--border-color);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .modal-header h3 { font-size: 18px; }
+
+            .modal-close {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: var(--text-muted);
+            }
+
+            .modal-body { padding: 20px; }
+
+            .modal-footer {
+                padding: 20px;
+                border-top: 1px solid var(--border-color);
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+            }
+
+            .btn-success {
+                background: var(--success);
+                color: white;
+            }
+
+            .btn-danger {
+                background: var(--danger);
+                color: white;
+            }
+
+            .btn-sm {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-sitemap"></i> 动态页面与资料管理</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="showAddModuleModal()">
+                        <i class="fas fa-plus"></i> 添加模块
+                    </button>
+                    <button class="btn btn-success" onclick="showUploadMaterialModal()">
+                        <i class="fas fa-upload"></i> 上传资料
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Left Panel - Module Tree -->
+                <div class="left-panel">
+                    <div class="panel-header">
+                        <span><i class="fas fa-folder-tree"></i> 模块结构</span>
+                        <span style="font-size: 12px; color: var(--gray-500);">点击卡片查看详情</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="module-grid" id="module-tree">
+                            <div class="loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Materials -->
+                <div class="right-panel">
+                    <div class="panel-header">
+                        <span><i class="fas fa-book-open"></i> 学习资料管理</span>
+                        <span style="font-size: 12px; color: var(--gray-500);">拖拽资料到页面或调整顺序</span>
+                    </div>
+                    
+                    <div class="materials-zone">
+                        <!-- Drop Zone -->
+                        <div class="drop-zone" id="drop-zone">
+                            <div class="drop-zone-empty">
+                                <i class="fas fa-hand-pointer"></i>
+                                <p>请先在左侧选择一个页面</p>
+                                <p style="font-size: 12px; margin-top: 5px;">然后拖拽资料到此处或从下方列表选择</p>
+                            </div>
+                        </div>
+
+                        <!-- Materials Source List -->
+                        <div style="padding: 0 15px 15px;">
+                            <div style="font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 10px;">
+                                <i class="fas fa-database"></i> 资料库
+                            </div>
+                            <div class="material-list" id="materials-source">
+                                <div class="empty-state">
+                                    <i class="fas fa-folder-open"></i>
+                                    <p>暂无学习资料</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Module Modal -->
+        <div class="modal-overlay" id="module-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="module-modal-title">添加模块</h3>
+                    <button class="modal-close" onclick="closeModuleModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="module-form">
+                        <input type="hidden" id="module-id" />
+                        <input type="hidden" id="module-parent-id" />
+                        <input type="hidden" id="module-level" />
+                        
+                        <div class="form-group">
+                            <label class="form-label">模块名称 *</label>
+                            <input type="text" class="form-input" id="module-name" required placeholder="例如：测井仪器知识" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">模块级别</label>
+                            <select class="form-select" id="module-level-select" onchange="updateModuleParentOptions()">
+                                <option value="1">一级模块</option>
+                                <option value="2">二级分类</option>
+                                <option value="3">三级页面</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="parent-select-group">
+                            <label class="form-label">上级模块</label>
+                            <select class="form-select" id="module-parent">
+                                <option value="">无（顶级模块）</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">图标</label>
+                            <select class="form-select" id="module-icon">
+                                <option value="fas fa-sitemap">sitemap</option>
+                                <option value="fas fa-microscope">microscope</option>
+                                <option value="fas fa-cogs">cogs</option>
+                                <option value="fas fa-clipboard-list">clipboard</option>
+                                <option value="fas fa-book">book</option>
+                                <option value="fas fa-graduation-cap">graduation</option>
+                                <option value="fas fa-tools">tools</option>
+                                <option value="fas fa-oil-well">oil</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">排序</label>
+                            <input type="number" class="form-input" id="module-order" value="0" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">状态</label>
+                            <select class="form-select" id="module-status">
+                                <option value="active">启用</option>
+                                <option value="inactive">禁用</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" onclick="closeModuleModal()">取消</button>
+                    <button class="btn btn-primary" onclick="saveModule()">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Page Modal -->
+        <div class="modal-overlay" id="page-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="page-modal-title">添加页面</h3>
+                    <button class="modal-close" onclick="closePageModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="page-form">
+                        <input type="hidden" id="page-id" />
+                        <input type="hidden" id="page-category-id" />
+                        
+                        <div class="form-group">
+                            <label class="form-label">页面标题 *</label>
+                            <input type="text" class="form-input" id="page-title" required placeholder="例如：声波测井原理" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">页面类型 *</label>
+                            <select class="form-select" id="page-type">
+                                <option value="video">视频</option>
+                                <option value="pdf">PDF文档</option>
+                                <option value="ppt">PPT演示</option>
+                                <option value="document">文档</option>
+                                <option value="text">图文</option>
+                                <option value="quiz">测验</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">所属分类 *</label>
+                            <select class="form-select" id="page-category" required>
+                                <option value="">请选择分类</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">描述</label>
+                            <textarea class="form-input" id="page-description" rows="3" placeholder="页面描述内容"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">排序</label>
+                            <input type="number" class="form-input" id="page-order" value="0" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">状态</label>
+                            <select class="form-select" id="page-status">
+                                <option value="draft">草稿</option>
+                                <option value="published">已发布</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" onclick="closePageModal()">取消</button>
+                    <button class="btn btn-primary" onclick="savePage()">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Material Modal -->
+        <div class="modal-overlay" id="upload-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>上传学习资料</h3>
+                    <button class="modal-close" onclick="closeUploadModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">资料类型</label>
+                        <select class="form-select" id="upload-type">
+                            <option value="video">视频</option>
+                            <option value="pdf">PDF文档</option>
+                            <option value="ppt">PPT演示</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">资料标题 *</label>
+                        <input type="text" class="form-input" id="upload-title" placeholder="例如：声波测井原理讲解" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">选择文件 *</label>
+                        <input type="file" id="upload-file" class="form-input" accept=".mp4,.webm,.pdf,.ppt,.pptx" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">描述</label>
+                        <textarea class="form-input" id="upload-description" rows="3" placeholder="资料描述信息"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" onclick="closeUploadModal()">取消</button>
+                    <button class="btn btn-primary" onclick="uploadMaterial()">上传</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirm Modal -->
+        <div class="modal-overlay" id="delete-modal">
+            <div class="modal" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h3>确认删除</h3>
+                    <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="delete-message">确定要删除此项吗？此操作不可恢复。</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" onclick="closeDeleteModal()">取消</button>
+                    <button class="btn btn-danger" id="confirm-delete-btn" onclick="confirmDelete()">确认删除</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast" style="display: none"></div>
+
+        <script>
+            // API Base URL
+            const API_BASE = 'http://localhost:3000/api';
+
+            // Get auth token from localStorage
+            function getAuthHeaders() {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+                return token ? {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                } : {
+                    'Content-Type': 'application/json'
+                };
+            }
+
+            // Authenticated fetch helper
+            async function authFetch(url, options = {}) {
+                const headers = getAuthHeaders();
+                const response = await fetch(url, { ...options, headers });
+                if (response.status === 401) {
+                    showToast('请先登录', 'error');
+                    // Redirect to login
+                    window.location.href = '/login.html';
+                    return null;
+                }
+                return response;
+            }
+
+            // State
+            let categories = [];
+            let pages = [];
+            let materials = [];
+            let selectedPage = null;
+            let selectedCategory = null;
+            let editMode = false;
+            let deleteTarget = null;
+            let deleteType = null;
+
+            // Initialize
+            document.addEventListener('DOMContentLoaded', () => {
+                loadAllData();
+                initDragDrop();
+            });
+
+            // Load all data
+            async function loadAllData() {
+                await Promise.all([
+                    loadCategories(),
+                    loadPages(),
+                    loadMaterials()
+                ]);
+            }
+
+            // ==================== Categories ====================
+
+            async function loadCategories() {
+                try {
+                    const response = await authFetch(`${API_BASE}/learning-categories?status=active`);
+                    if (!response) return;
+                    const result = await response.json();
+                    categories = result.data || [];
+                    renderModuleTree();
+                } catch (error) {
+                    console.error('加载分类失败:', error);
+                }
+            }
+
+            function renderModuleTree() {
+                const container = document.getElementById('module-tree');
+                
+                // Build tree structure - Group by Level 2 categories
+                const level2Categories = categories.filter(c => c.level === 2);
+                
+                if (level2Categories.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-plus"></i>
+                            <p>暂无模块</p>
+                            <p style="font-size: 12px;">请点击下方按钮添加模块</p>
+                        </div>
+                        <div class="add-module-section">
+                            <button class="add-module-btn" onclick="showAddModuleModal(1)">
+                                <i class="fas fa-plus"></i> 添加一级模块
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                
+                // Group pages by their parent category (level 2)
+                level2Categories.forEach((cat2, index) => {
+                    // Get parent level 1
+                    const parentCat = categories.find(c => c._id === cat2.parentId);
+                    const parentName = parentCat ? parentCat.name : '未分类';
+                    
+                    // Get pages belonging to this category
+                    const catPages = pages.filter(p => {
+                        const pageCatId = p.categoryId?._id || p.categoryId;
+                        return pageCatId === cat2._id;
+                    });
+                    
+                    // Get child level 3 categories
+                    const level3Categories = categories.filter(c => c.parentId === cat2._id);
+                    
+                    html += `
+                        <div class="category-group" id="group-${cat2._id}">
+                            <div class="category-group-header" onclick="toggleGroup('${cat2._id}')">
+                                <div class="category-title">
+                                    <div class="category-icon">
+                                        <i class="${cat2.icon || 'fas fa-folder'}"></i>
+                                    </div>
+                                    <div>
+                                        <div>${cat2.name}</div>
+                                        <div style="font-size: 11px; font-weight: normal; color: var(--gray-500);">${parentName}</div>
+                                    </div>
+                                </div>
+                                <div class="category-actions">
+                                    <button class="add-page-btn" onclick="event.stopPropagation(); showAddPageModal('${cat2._id}')" title="添加页面">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="edit-btn" onclick="event.stopPropagation(); editCategory('${cat2._id}')" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="delete-btn" onclick="event.stopPropagation(); showDeleteConfirm('${cat2._id}', 'category', '${cat2.name}')" title="删除">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="category-group-content" id="content-${cat2._id}">
+                                <div class="category-group-pages">
+                                    ${catPages.map(page => renderPageCardInGroup(page)).join('')}
+                                    <div class="add-page-card" onclick="showAddPageModal('${cat2._id}')">
+                                        <i class="fas fa-plus"></i>
+                                        <span>添加页面</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Add button for new category
+                html += `
+                    <div class="add-module-section">
+                        <button class="add-module-btn" onclick="showAddModuleModal(1)">
+                            <i class="fas fa-plus"></i> 添加新模块
+                        </button>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            function toggleGroup(categoryId) {
+                const content = document.getElementById(`content-${categoryId}`);
+                if (content) {
+                    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+                }
+            }
+
+            function renderPageCardInGroup(page) {
+                const typeIcons = {
+                    video: 'fa-video',
+                    pdf: 'fa-file-pdf',
+                    ppt: 'fa-file-powerpoint',
+                    document: 'fa-file-alt',
+                    text: 'fa-align-left',
+                    quiz: 'fa-question-circle'
+                };
+                
+                const typeNames = {
+                    video: '视频',
+                    pdf: 'PDF',
+                    ppt: 'PPT',
+                    document: '文档',
+                    text: '图文',
+                    quiz: '测验'
+                };
+
+                return `
+                    <div class="page-card-in-group ${page.pageType}" data-id="${page._id}" data-type="page" onclick="selectPage('${page._id}')">
+                        <div class="page-actions">
+                            <button class="edit-btn" onclick="event.stopPropagation(); editPage('${page._id}')" title="编辑">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn" onclick="event.stopPropagation(); showDeleteConfirm('${page._id}', 'page', '${page.title}')" title="删除">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <span class="page-type-badge ${page.pageType}">${typeNames[page.pageType] || page.pageType}</span>
+                        <div class="page-icon">
+                            <i class="fas ${typeIcons[page.pageType] || 'fa-file'}"></i>
+                        </div>
+                        <div class="page-title">${page.title}</div>
+                        <div class="page-status ${page.status}">${page.status === 'published' ? '已发布' : '草稿'}</div>
+                    </div>
+                `;
+            }
+
+            // ==================== Pages ====================
+
+            async function loadPages() {
+                try {
+                    const response = await authFetch(`${API_BASE}/learning-pages?limit=1000`);
+                    if (!response) return;
+                    const result = await response.json();
+                    pages = result.data || [];
+                } catch (error) {
+                    console.error('加载页面失败:', error);
+                }
+            }
+
+            // ==================== Materials ====================
+
+            async function loadMaterials() {
+                try {
+                    const response = await authFetch(`${API_BASE}/files?limit=100`);
+                    if (!response) return;
+                    const result = await response.json();
+                    materials = result.data || [];
+                    renderMaterialsSource();
+                } catch (error) {
+                    console.error('加载资料失败:', error);
+                }
+            }
+
+            function renderMaterialsSource() {
+                const container = document.getElementById('materials-source');
+                
+                if (materials.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>暂无学习资料</p>
+                            <p style="font-size: 12px;">请点击右上角"上传资料"按钮</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                materials.forEach(file => {
+                    const type = getFileType(file.originalName);
+                    const icons = {
+                        video: 'fa-video',
+                        pdf: 'fa-file-pdf',
+                        ppt: 'fa-file-powerpoint',
+                        other: 'fa-file-alt'
+                    };
+                    
+                    html += `
+                        <div class="material-item" draggable="true" data-id="${file._id}" data-type="${type}">
+                            <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                            <div class="material-icon ${type}">
+                                <i class="fas ${icons[type]}"></i>
+                            </div>
+                            <div class="material-info">
+                                <div class="material-title">${file.originalName}</div>
+                                <div class="material-meta">${formatFileSize(file.size)}</div>
+                            </div>
+                            <div class="material-actions">
+                                <button class="play-btn" onclick="previewMaterial('${file._id}')" title="预览">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="delete-btn" onclick="deleteMaterialFromSource('${file._id}')" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+                
+                // Add drag events
+                container.querySelectorAll('.material-item').forEach(item => {
+                    item.addEventListener('dragstart', handleDragStart);
+                    item.addEventListener('dragend', handleDragEnd);
+                });
+            }
+
+            function getFileType(filename) {
+                if (filename.match(/\.(mp4|webm|avi|mov)$/i)) return 'video';
+                if (filename.match(/\.pdf$/i)) return 'pdf';
+                if (filename.match(/\.(ppt|pptx)$/i)) return 'ppt';
+                return 'other';
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            }
+
+            // ==================== Selection ====================
+
+            function selectCategory(categoryId) {
+                selectedCategory = categories.find(c => c._id === categoryId);
+                selectedPage = null;
+                
+                // Update UI
+                document.querySelectorAll('.module-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                document.querySelector(`.module-card[data-id="${categoryId}"]`)?.classList.add('selected');
+
+                // Show category info in drop zone
+                const dropZone = document.getElementById('drop-zone');
+                dropZone.innerHTML = `
+                    <div class="selected-info">
+                        <h3><i class="fas fa-folder"></i> ${selectedCategory.name}</h3>
+                        <div class="path">分类层级: ${selectedCategory.level} 级</div>
+                    </div>
+                    <p style="text-align: center; color: var(--gray-500);">
+                        请在下方选择一个三级页面来管理资料<br>
+                        <span style="font-size: 12px;">或点击"添加模块"创建新的三级页面</span>
+                    </p>
+                `;
+            }
+
+            function selectPage(pageId) {
+                const page = pages.find(p => p._id === pageId);
+                if (!page) return;
+                
+                selectedPage = page;
+                selectedCategory = null;
+                
+                // Update UI
+                document.querySelectorAll('.module-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                document.querySelector(`.module-card[data-id="${pageId}"]`)?.classList.add('selected');
+
+                // Load page materials
+                loadPageMaterials(pageId);
+            }
+
+            async function loadPageMaterials(pageId) {
+                try {
+                    const response = await authFetch(`${API_BASE}/learning-pages/${pageId}/materials`);
+                    if (!response) return;
+                    const result = await response.json();
+                    const pageMaterials = result.data || { video: [], pdf: [], ppt: [], other: [] };
+                    
+                    // Combine all materials
+                    const allMaterials = [
+                        ...(pageMaterials.video || []),
+                        ...(pageMaterials.pdf || []),
+                        ...(pageMaterials.ppt || []),
+                        ...(pageMaterials.other || [])
+                    ];
+                    
+                    renderPageMaterials(allMaterials);
+                } catch (error) {
+                    console.error('加载页面资料失败:', error);
+                }
+            }
+
+            function renderPageMaterials(pageMaterials) {
+                const dropZone = document.getElementById('drop-zone');
+                
+                // Get category path
+                const categoryPath = selectedPage?.categoryId?.name || '';
+                
+                let html = `
+                    <div class="selected-info">
+                        <h3><i class="fas fa-file-alt"></i> ${selectedPage?.title || ''}</h3>
+                        <div class="path">${categoryPath}</div>
+                    </div>
+                `;
+                
+                if (pageMaterials.length === 0) {
+                    html += `
+                        <div class="drop-zone-empty">
+                            <i class="fas fa-inbox"></i>
+                            <p>暂无学习资料</p>
+                            <p style="font-size: 12px;">从下方资料库拖拽资料到此区域</p>
+                        </div>
+                    `;
+                } else {
+                    html += `<div class="material-list sortable" id="page-materials-list">`;
+                    pageMaterials.forEach((item, index) => {
+                        const type = item.materialType || 'other';
+                        const icons = {
+                            video: 'fa-video',
+                            pdf: 'fa-file-pdf',
+                            ppt: 'fa-file-powerpoint',
+                            other: 'fa-file-alt'
+                        };
+                        
+                        html += `
+                            <div class="material-item" draggable="true" data-id="${item._id || item.fileId}" data-index="${index}" data-type="${type}">
+                                <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                                <div class="material-icon ${type}">
+                                    <i class="fas ${icons[type]}"></i>
+                                </div>
+                                <div class="material-info">
+                                    <div class="material-title">${item.title}</div>
+                                    <div class="material-meta">排序: ${index + 1}</div>
+                                </div>
+                                <div class="material-actions">
+                                    <button class="play-btn" onclick="previewMaterialInPage('${item._id || item.fileId}', '${type}')" title="预览">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button class="delete-btn" onclick="removeMaterialFromPage('${item._id || item.fileId}')" title="移除">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                dropZone.innerHTML = html;
+                
+                // Add drag events for reordering
+                const list = document.getElementById('page-materials-list');
+                if (list) {
+                    initSortable(list);
+                }
+            }
+
+            // ==================== Drag & Drop ====================
+
+            let draggedItem = null;
+
+            function initDragDrop() {
+                const dropZone = document.getElementById('drop-zone');
+                
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('drag-over');
+                });
+                
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('drag-over');
+                });
+                
+                dropZone.addEventListener('drop', async (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('drag-over');
+                    
+                    if (!selectedPage) {
+                        showToast('请先选择一个页面', 'error');
+                        return;
+                    }
+                    
+                    if (draggedItem) {
+                        // Moving from source list
+                        const fileId = draggedItem.dataset.id;
+                        const file = materials.find(f => f._id === fileId);
+                        if (file) {
+                            await addMaterialToPage(file);
+                        }
+                        draggedItem = null;
+                    }
+                });
+            }
+
+            function handleDragStart(e) {
+                draggedItem = e.target;
+                e.target.classList.add('dragging');
+            }
+
+            function handleDragEnd(e) {
+                e.target.classList.remove('dragging');
+                draggedItem = null;
+            }
+
+            function initSortable(list) {
+                let draggedEl = null;
+                
+                list.addEventListener('dragstart', (e) => {
+                    if (e.target.classList.contains('material-item')) {
+                        draggedEl = e.target;
+                        e.target.classList.add('dragging');
+                    }
+                });
+                
+                list.addEventListener('dragend', (e) => {
+                    if (e.target.classList.contains('material-item')) {
+                        e.target.classList.remove('dragging');
+                        // Update order
+                        updateMaterialOrder();
+                    }
+                });
+                
+                list.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(list, e.clientY);
+                    if (draggedEl) {
+                        if (afterElement == null) {
+                            list.appendChild(draggedEl);
+                        } else {
+                            list.insertBefore(draggedEl, afterElement);
+                        }
+                    }
+                });
+            }
+
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.material-item:not(.dragging)')];
+                
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+
+            // ==================== Materials API ====================
+
+            async function addMaterialToPage(file) {
+                if (!selectedPage) return;
+                
+                const type = getFileType(file.originalName);
+                
+                try {
+                    const response = await authFetch(`${API_BASE}/learning-pages/${selectedPage._id}/materials`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            materialType: type,
+                            fileId: file._id,
+                            title: file.originalName,
+                            description: '',
+                            order: 0
+                        })
+                    });
+
+                    if (response && response.ok) {
+                        showToast('资料添加成功');
+                        loadPageMaterials(selectedPage._id);
+                    } else {
+                        const result = await response.json();
+                        showToast(result.message || '添加失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('添加资料失败:', error);
+                    showToast('添加资料失败', 'error');
+                }
+            }
+
+            async function removeMaterialFromPage(materialId) {
+                if (!selectedPage || !confirm('确定要从页面移除此资料吗？')) return;
+                
+                try {
+                    const response = await authFetch(`${API_BASE}/learning-pages/${selectedPage._id}/materials/${materialId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response && response.ok) {
+                        showToast('资料已移除');
+                        loadPageMaterials(selectedPage._id);
+                    } else {
+                        showToast('移除失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('移除资料失败:', error);
+                    showToast('移除资料失败', 'error');
+                }
+            }
+
+            async function updateMaterialOrder() {
+                if (!selectedPage) return;
+                
+                const list = document.getElementById('page-materials-list');
+                const items = list.querySelectorAll('.material-item');
+                
+                // Get current order
+                const order = [...items].map((item, index) => ({
+                    id: item.dataset.id,
+                    order: index
+                }));
+                
+                // TODO: Implement order update API
+                console.log('New order:', order);
+                showToast('排序已更新');
+            }
+
+            // ==================== Module Modal ====================
+
+            function showAddModuleModal(level = 1, parentId = null) {
+                document.getElementById('module-modal-title').textContent = '添加模块';
+                document.getElementById('module-form').reset();
+                document.getElementById('module-id').value = '';
+                document.getElementById('module-parent-id').value = parentId || '';
+                document.getElementById('module-level').value = level;
+                document.getElementById('module-level-select').value = level;
+                
+                updateModuleParentOptions();
+                document.getElementById('module-modal').classList.add('active');
+            }
+
+            function editModule(id, type) {
+                if (type === 'category') {
+                    const cat = categories.find(c => c._id === id);
+                    if (!cat) return;
+                    
+                    document.getElementById('module-modal-title').textContent = '编辑模块';
+                    document.getElementById('module-id').value = cat._id;
+                    document.getElementById('module-name').value = cat.name;
+                    document.getElementById('module-level').value = cat.level;
+                    document.getElementById('module-level-select').value = cat.level;
+                    document.getElementById('module-icon').value = cat.icon || 'fas fa-folder';
+                    document.getElementById('module-order').value = cat.order || 0;
+                    document.getElementById('module-status').value = cat.status || 'active';
+                    
+                    updateModuleParentOptions();
+                    if (cat.parentId) {
+                        document.getElementById('module-parent').value = cat.parentId;
+                    }
+                    
+                    document.getElementById('module-modal').classList.add('active');
+                } else {
+                    // Edit page
+                    const page = pages.find(p => p._id === id);
+                    if (!page) return;
+                    
+                    // For now, redirect to page edit
+                    window.open(`/learning-page-management.html?edit=${id}`, '_blank');
+                }
+            }
+
+            function closeModuleModal() {
+                document.getElementById('module-modal').classList.remove('active');
+            }
+
+            function updateModuleParentOptions() {
+                const level = parseInt(document.getElementById('module-level-select').value);
+                const parentSelect = document.getElementById('module-parent');
+                const parentGroup = document.getElementById('parent-select-group');
+                
+                if (level === 1) {
+                    parentGroup.style.display = 'none';
+                    parentSelect.innerHTML = '<option value="">无（顶级模块）</option>';
+                } else {
+                    parentGroup.style.display = 'block';
+                    
+                    const parentLevel = level - 1;
+                    const parents = categories.filter(c => c.level === parentLevel);
+                    
+                    parentSelect.innerHTML = '<option value="">请选择上级模块</option>';
+                    parents.forEach(p => {
+                        parentSelect.innerHTML += `<option value="${p._id}">${p.name}</option>`;
+                    });
+                }
+            }
+
+            async function saveModule() {
+                const id = document.getElementById('module-id').value;
+                const name = document.getElementById('module-name').value;
+                const level = parseInt(document.getElementById('module-level-select').value);
+                const parentId = document.getElementById('module-parent').value || null;
+                const icon = document.getElementById('module-icon').value;
+                const order = parseInt(document.getElementById('module-order').value) || 0;
+                const status = document.getElementById('module-status').value;
+
+                if (!name) {
+                    showToast('请输入模块名称', 'error');
+                    return;
+                }
+
+                const data = {
+                    name,
+                    level,
+                    parentId,
+                    icon,
+                    order,
+                    status,
+                    module: 'knowledge'
+                };
+
+                try {
+                    const url = id 
+                        ? `${API_BASE}/learning-categories/${id}`
+                        : `${API_BASE}/learning-categories`;
+                    const method = id ? 'PUT' : 'POST';
+
+                    const response = await authFetch(url, {
+                        method,
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response && response.ok) {
+                        showToast(id ? '模块更新成功' : '模块创建成功');
+                        closeModuleModal();
+                        loadCategories();
+                    } else {
+                        const result = await response.json();
+                        showToast(result.message || '操作失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('保存模块失败:', error);
+                    showToast('操作失败', 'error');
+                }
+            }
+
+            // ==================== Page Modal ====================
+
+            function showAddPageModal(categoryId) {
+                document.getElementById('page-modal-title').textContent = '添加页面';
+                document.getElementById('page-form').reset();
+                document.getElementById('page-id').value = '';
+                document.getElementById('page-category-id').value = categoryId || '';
+                
+                updatePageCategoryOptions(categoryId);
+                document.getElementById('page-modal').classList.add('active');
+            }
+
+            function editPage(id) {
+                const page = pages.find(p => p._id === id);
+                if (!page) {
+                    showToast('页面不存在', 'error');
+                    return;
+                }
+                
+                document.getElementById('page-modal-title').textContent = '编辑页面';
+                document.getElementById('page-id').value = page._id;
+                document.getElementById('page-title').value = page.title || '';
+                document.getElementById('page-type').value = page.pageType || 'text';
+                document.getElementById('page-description').value = page.description || '';
+                document.getElementById('page-order').value = page.order || 0;
+                document.getElementById('page-status').value = page.status || 'draft';
+                
+                updatePageCategoryOptions(page.categoryId);
+                document.getElementById('page-category').value = page.categoryId || '';
+                
+                document.getElementById('page-modal').classList.add('active');
+            }
+
+            function closePageModal() {
+                document.getElementById('page-modal').classList.remove('active');
+            }
+
+            function updatePageCategoryOptions(selectedId) {
+                const select = document.getElementById('page-category');
+                
+                // Get all level 2 categories for page assignment
+                const level2Categories = categories.filter(c => c.level === 2);
+                
+                select.innerHTML = '<option value="">请选择分类</option>';
+                level2Categories.forEach(cat => {
+                    const parent = categories.find(p => p._id === cat.parentId);
+                    const parentName = parent ? parent.name + ' > ' : '';
+                    const selected = cat._id === selectedId ? 'selected' : '';
+                    select.innerHTML += `<option value="${cat._id}" ${selected}>${parentName}${cat.name}</option>`;
+                });
+            }
+
+            async function savePage() {
+                const id = document.getElementById('page-id').value;
+                const title = document.getElementById('page-title').value;
+                const pageType = document.getElementById('page-type').value;
+                const categoryId = document.getElementById('page-category').value;
+                const description = document.getElementById('page-description').value;
+                const order = parseInt(document.getElementById('page-order').value) || 0;
+                const status = document.getElementById('page-status').value;
+
+                if (!title) {
+                    showToast('请输入页面标题', 'error');
+                    return;
+                }
+
+                if (!categoryId) {
+                    showToast('请选择所属分类', 'error');
+                    return;
+                }
+
+                const data = {
+                    title,
+                    pageType,
+                    categoryId,
+                    description,
+                    order,
+                    status
+                };
+
+                try {
+                    const url = id 
+                        ? `${API_BASE}/learning-pages/${id}`
+                        : `${API_BASE}/learning-pages`;
+                    const method = id ? 'PUT' : 'POST';
+
+                    const response = await authFetch(url, {
+                        method,
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response && response.ok) {
+                        showToast(id ? '页面更新成功' : '页面创建成功');
+                        closePageModal();
+                        loadPages();
+                        renderModuleTree();
+                    } else {
+                        const result = await response.json();
+                        showToast(result.message || '操作失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('保存页面失败:', error);
+                    showToast('操作失败', 'error');
+                }
+            }
+
+            // ==================== Delete ====================
+
+            function showDeleteConfirm(id, type, name) {
+                deleteTarget = id;
+                deleteType = type;
+                
+                const messages = {
+                    category: `确定要删除模块"${name}"吗？<br><br><span style="color: var(--danger);">注意：删除分类将同时删除其下所有子分类和页面！</span>`,
+                    page: `确定要删除页面"${name}"吗？<br><br><span style="color: var(--danger);">注意：删除页面将同时删除页面下所有学习资料！</span>`
+                };
+                
+                document.getElementById('delete-message').innerHTML = messages[type];
+                document.getElementById('delete-modal').classList.add('active');
+            }
+
+            function closeDeleteModal() {
+                document.getElementById('delete-modal').classList.remove('active');
+                deleteTarget = null;
+                deleteType = null;
+            }
+
+            async function confirmDelete() {
+                if (!deleteTarget || !deleteType) return;
+
+                try {
+                    let url, method;
+                    
+                    if (deleteType === 'category') {
+                        url = `${API_BASE}/learning-categories/${deleteTarget}`;
+                        method = 'DELETE';
+                    } else {
+                        url = `${API_BASE}/learning-pages/${deleteTarget}`;
+                        method = 'DELETE';
+                    }
+
+                    const response = await authFetch(url, { method });
+
+                    if (response && response.ok) {
+                        showToast('删除成功');
+                        closeDeleteModal();
+                        loadAllData();
+                    } else {
+                        const result = await response.json();
+                        showToast(result.message || '删除失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('删除失败:', error);
+                    showToast('删除失败', 'error');
+                }
+            }
+
+            // ==================== Upload ====================
+
+            function showUploadMaterialModal() {
+                document.getElementById('upload-modal').classList.add('active');
+            }
+
+            function closeUploadModal() {
+                document.getElementById('upload-modal').classList.remove('active');
+            }
+
+            async function uploadMaterial() {
+                const fileInput = document.getElementById('upload-file');
+                const title = document.getElementById('upload-title').value;
+                const type = document.getElementById('upload-type').value;
+                const description = document.getElementById('upload-description').value;
+                const file = fileInput.files[0];
+
+                if (!file) {
+                    showToast('请选择文件', 'error');
+                    return;
+                }
+
+                if (!title) {
+                    showToast('请输入资料标题', 'error');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('title', title);
+                formData.append('type', type);
+                formData.append('description', description);
+
+                try {
+                    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+                    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                    
+                    const response = await fetch(`${API_BASE}/files/upload`, {
+                        method: 'POST',
+                        headers,
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        showToast('资料上传成功');
+                        closeUploadModal();
+                        loadMaterials();
+                        
+                        // Reset form
+                        fileInput.value = '';
+                        document.getElementById('upload-title').value = '';
+                        document.getElementById('upload-description').value = '';
+                    } else {
+                        const result = await response.json();
+                        showToast(result.message || '上传失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('上传失败:', error);
+                    showToast('上传失败', 'error');
+                }
+            }
+
+            async function deleteMaterialFromSource(fileId) {
+                if (!confirm('确定要删除此资料吗？此操作不可恢复。')) return;
+
+                try {
+                    const response = await authFetch(`${API_BASE}/files/${fileId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response && response.ok) {
+                        showToast('资料已删除');
+                        loadMaterials();
+                    } else {
+                        showToast('删除失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('删除失败:', error);
+                    showToast('删除失败', 'error');
+                }
+            }
+
+            // ==================== Preview ====================
+
+            function previewMaterial(fileId) {
+                // Open video/PDF viewer
+                const file = materials.find(f => f._id === fileId);
+                if (!file) return;
+                
+                const type = getFileType(file.originalName);
+                
+                if (type === 'video') {
+                    // Open video player
+                    window.open(`/components/video-player.html?fileId=${fileId}`, '_blank');
+                } else if (type === 'pdf') {
+                    window.open(`/components/pdf-viewer.html?fileId=${fileId}`, '_blank');
+                } else if (type === 'ppt') {
+                    window.open(`/components/ppt-viewer.html?fileId=${fileId}`, '_blank');
+                }
+            }
+
+            function previewMaterialInPage(fileId, type) {
+                if (type === 'video') {
+                    window.open(`/components/video-player.html?fileId=${fileId}`, '_blank');
+                } else if (type === 'pdf') {
+                    window.open(`/components/pdf-viewer.html?fileId=${fileId}`, '_blank');
+                } else if (type === 'ppt') {
+                    window.open(`/components/ppt-viewer.html?fileId=${fileId}`, '_blank');
+                }
+            }
+
+            // ==================== Toast ====================
+
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                toast.style.display = 'block';
+                setTimeout(() => (toast.style.display = 'none'), 3000);
+            }
+        </script>
+    </body>
+</html>

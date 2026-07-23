@@ -1,0 +1,84 @@
+<!-- PDF阅读器组件 -->
+<div class="pdf-viewer-modal" id="pdfViewerModal" style="display: none">
+    <div class="modal-overlay" onclick="closePDFViewer()"></div>
+    <div class="modal-content pdf-modal">
+        <div id="pdfViewerContainer"></div>
+    </div>
+</div>
+
+<!-- PDF.js CDN -->
+<script src="/vendor/pdf.js/pdf.min.js"></script>
+<link rel="stylesheet" href="css/pdf-viewer.css" />
+<script src="js/pdfViewer.js"></script>
+
+<script>
+    // PDF阅读器实例
+    let currentPDFViewer = null;
+
+    // 打开PDF阅读器
+    function openPDFViewer(fileId, title, src) {
+        const modal = document.getElementById('pdfViewerModal');
+        const container = document.getElementById('pdfViewerContainer');
+
+        modal.style.display = 'block';
+
+        // 清空容器
+        container.innerHTML = '';
+
+        // 创建阅读器实例
+        currentPDFViewer = new PDFViewer('pdfViewerContainer', {
+            fileId: fileId,
+            src: src,
+            title: title,
+            knowledgeId: currentKnowledgeId,
+        });
+    }
+
+    // 关闭PDF阅读器
+    function closePDFViewer() {
+        const modal = document.getElementById('pdfViewerModal');
+        modal.style.display = 'none';
+
+        if (currentPDFViewer) {
+            currentPDFViewer.destroy();
+            currentPDFViewer = null;
+        }
+    }
+</script>
+
+<style>
+    .pdf-viewer-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content.pdf-modal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 95%;
+        height: 90%;
+        max-width: 1200px;
+        background: var(--glass-bg-primary);
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        box-shadow: var(--glass-shadow-lg);
+    }
+
+    #pdfViewerContainer {
+        width: 100%;
+        height: 100%;
+    }
+</style>
